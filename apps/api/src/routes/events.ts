@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { and, desc, eq, type SQL } from "drizzle-orm";
+import { and, desc, eq, lt, type SQL } from "drizzle-orm";
 import { db } from "../db/client";
 import { events, tags, tasks } from "../db/schema";
 import { createEventSchema } from "../lib/validation";
@@ -12,14 +12,20 @@ const DEFAULT_LIMIT = 50;
 const MAX_LIMIT = 200;
 
 // History list, newest first. Optionally scoped to one tag or task (used
-// by the Tag detail screen). Pagination beyond `limit` is handled when we
-// build out the History screen properly.
+// by the Tag detail screen). `before` (an event's createdAt) pages
+// backwards through older events — the client re-requests with the last
+// row's createdAt once it gets back a full page.
 eventsRouter.get("/", async (req, res) => {
   const limit = Math.min(Number(req.query.limit) || DEFAULT_LIMIT, MAX_LIMIT);
 
   const conditions: SQL[] = [];
   if (typeof req.query.tagId === "string") conditions.push(eq(events.tagId, req.query.tagId));
   if (typeof req.query.taskId === "string") conditions.push(eq(events.taskId, req.query.taskId));
+  if (typeof req.query.before === "string") {
+    const before = new Date(req.query.before);
+    if (Number.isNaN(before.getTime())) throw new HttpError(400, "before: invalid date");
+    conditions.push(lt(events.createdAt, before));
+  }
 
   const rows = await db
     .select({

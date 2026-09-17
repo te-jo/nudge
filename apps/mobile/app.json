@@ -32,6 +32,12 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }
+      ],
+      [
+        "react-native-nfc-manager",
+        {
+          "nfcPermission": "nudge uses NFC to read and write tags so tapping one can log an event."
+        }
       ]
     ],
     "experiments": {
