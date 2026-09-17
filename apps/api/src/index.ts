@@ -8,6 +8,14 @@ import { HttpError } from "./lib/http-error";
 
 const app = express();
 
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on("finish", () => {
+    console.log(`${req.method} ${req.originalUrl} ${res.statusCode} ${Date.now() - start}ms`);
+  });
+  next();
+});
+
 app.use(cors());
 app.use(express.json());
 
