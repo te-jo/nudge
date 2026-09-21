@@ -45,6 +45,10 @@ export default function TagDetailScreen() {
   const trimmedLabel = label.trim();
   const labelChanged = trimmedLabel !== '' && trimmedLabel !== tag.label;
 
+  function alertError(title: string, err: unknown) {
+    Alert.alert(title, err instanceof Error ? err.message : 'Something went wrong.');
+  }
+
   function handleDelete() {
     Alert.alert('Delete tag', `Delete "${tag.label}"? This can't be undone.`, [
       { text: 'Cancel', style: 'cancel' },
@@ -52,8 +56,12 @@ export default function TagDetailScreen() {
         text: 'Delete',
         style: 'destructive',
         onPress: async () => {
-          await deleteTag.mutateAsync();
-          router.back();
+          try {
+            await deleteTag.mutateAsync();
+            router.back();
+          } catch (err) {
+            alertError("Couldn't delete tag", err);
+          }
         },
       },
     ]);
@@ -72,7 +80,16 @@ export default function TagDetailScreen() {
               className="flex-1 rounded-xl border border-gray-200 px-4 py-3 text-base text-black dark:border-gray-700 dark:text-white"
             />
             {labelChanged ? (
-              <Button title="Save" variant="secondary" onPress={() => updateTag.mutate({ label: trimmedLabel })} />
+              <Button
+                title="Save"
+                variant="secondary"
+                onPress={() =>
+                  updateTag.mutate(
+                    { label: trimmedLabel },
+                    { onError: (err) => alertError("Couldn't save label", err) },
+                  )
+                }
+              />
             ) : null}
           </View>
         </View>
@@ -82,13 +99,20 @@ export default function TagDetailScreen() {
           <TaskPicker
             tasks={tasksQuery.data ?? []}
             selectedTaskId={tag.taskId}
-            onSelect={(taskId) => updateTag.mutate({ taskId })}
+            onSelect={(taskId) =>
+              updateTag.mutate({ taskId }, { onError: (err) => alertError("Couldn't update task", err) })
+            }
           />
         </View>
 
         <Button
           title="Log Event Now"
-          onPress={() => logEvent.mutate({ tagId: tag.id })}
+          onPress={() =>
+            logEvent.mutate(
+              { tagId: tag.id },
+              { onError: (err) => alertError("Couldn't log event", err) },
+            )
+          }
           disabled={logEvent.isPending}
         />
 

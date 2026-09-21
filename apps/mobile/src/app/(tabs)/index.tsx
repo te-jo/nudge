@@ -25,10 +25,13 @@ export default function HomeScreen() {
         return;
       }
 
+      // A 404 here means the tag isn't registered — send it to register.
+      // A 404 from the /events POST below is a different failure (e.g. the
+      // tag was deleted mid-scan) and must NOT be treated the same way, or
+      // we'd silently overwrite the tag's NDEF data on the register screen.
+      let tag: Tag;
       try {
-        const tag = await apiFetch<Tag>(`/tags/uid/${encodeURIComponent(token)}`);
-        await apiFetch('/events', { method: 'POST', body: JSON.stringify({ tagId: tag.id }) });
-        router.push(`/tags/${tag.id}`);
+        tag = await apiFetch<Tag>(`/tags/uid/${encodeURIComponent(token)}`);
       } catch (err) {
         if (err instanceof ApiError && err.status === 404) {
           router.push('/tags/register');
@@ -36,6 +39,9 @@ export default function HomeScreen() {
         }
         throw err;
       }
+
+      await apiFetch('/events', { method: 'POST', body: JSON.stringify({ tagId: tag.id }) });
+      router.push(`/tags/${tag.id}`);
     } catch (err) {
       if (err instanceof NfcNotSupportedError) {
         Alert.alert('NFC not supported', err.message);

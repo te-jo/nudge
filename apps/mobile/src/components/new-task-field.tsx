@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pressable, Text, TextInput, View } from 'react-native';
+import { Alert, Pressable, Text, TextInput, View } from 'react-native';
 
 import { Button } from '@/components/button';
 import { useCreateTask } from '@/hooks/use-tasks';
@@ -12,10 +12,14 @@ export function NewTaskField({ onCreated }: { onCreated: (taskId: string) => voi
   async function handleCreate() {
     const trimmed = name.trim();
     if (!trimmed) return;
-    const task = await createTask.mutateAsync({ name: trimmed });
-    onCreated(task.id);
-    setName('');
-    setAdding(false);
+    try {
+      const task = await createTask.mutateAsync({ name: trimmed });
+      onCreated(task.id);
+      setName('');
+      setAdding(false);
+    } catch (err) {
+      Alert.alert("Couldn't create task", err instanceof Error ? err.message : 'Something went wrong.');
+    }
   }
 
   if (!adding) {

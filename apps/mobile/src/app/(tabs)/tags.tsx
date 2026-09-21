@@ -54,7 +54,6 @@ export default function TagsScreen() {
       ) : (
         <FlatList
           data={tags.data ?? []}
-          key="grid-2"
           numColumns={2}
           keyExtractor={(item) => item.id}
           renderItem={renderTag}
