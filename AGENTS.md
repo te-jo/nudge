@@ -111,6 +111,10 @@ Scan flow (Home screen): read → if a token comes back, resolve it via `GET /ta
 
 NFC requires a custom dev client — it doesn't work in Expo Go, and it doesn't work in any simulator/emulator (no software NFC radio). Testing the real tap requires a physical device with a dev client build installed (`npx expo prebuild` + local Xcode/Android Studio, or EAS Build). Everything else (tasks, tags, history, manual "Log Event Now" on the Tag detail screen) works fine in Expo Go / the web build without a physical tag.
 
+**Apple Developer Program is required for iOS NFC** — a free/personal Apple ID team cannot build with the NFC Tag Reading entitlement at all ("Personal development teams ... do not support the NFC Tag Reading capability"). This is an Apple account-tier restriction, not a build-tooling issue — it applies whether building locally or via EAS. A free personal team is sufficient for everything else (signing, installing non-NFC builds on a device).
+
+**Local iOS dev-client build steps** (once enrolled in the paid program): `apps/mobile/app.json`'s `ios.appleTeamId` must be set to your team ID (find it in Xcode → Settings → Accounts after adding your Apple ID). Then from `apps/mobile`: `npx expo prebuild --platform ios` (always run from `apps/mobile`, never the repo root — running it elsewhere generates a stray native project using the wrong package.json's name/bundle id), then `npx expo run:ios --device "<device name>"`. Requires Homebrew + CocoaPods (`brew install cocoapods`), `xcode-select -s /Applications/Xcode.app/Contents/Developer` (not just the Command Line Tools), and the matching iOS platform installed in Xcode (Settings → Components) for whatever iOS version the test device runs.
+
 ### Styling
 
 Use NativeWind (`className`) for everything by default. A few React Native components take props NativeWind can't reach (dynamic/animated values, or RN-specific props with no Tailwind equivalent) — use `StyleSheet`/inline styles only for those:
