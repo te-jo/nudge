@@ -24,7 +24,7 @@ export function useCreateTag() {
     mutationFn: (input: CreateTagInput) =>
       apiFetch<Tag>("/tags", { method: "POST", body: JSON.stringify(input) }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tags"] });
+      void queryClient.invalidateQueries({ queryKey: ["tags"] });
     },
   });
 }
@@ -36,7 +36,7 @@ export function useUpdateTag(id: string) {
       apiFetch<Tag>(`/tags/${id}`, { method: "PATCH", body: JSON.stringify(input) }),
     onSuccess: (tag) => {
       queryClient.setQueryData(["tags", id], tag);
-      queryClient.invalidateQueries({ queryKey: ["tags"] });
+      void queryClient.invalidateQueries({ queryKey: ["tags"] });
     },
   });
 }
@@ -46,7 +46,7 @@ export function useDeleteTag(id: string) {
   return useMutation({
     mutationFn: () => apiFetch<void>(`/tags/${id}`, { method: "DELETE" }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tags"] });
+      void queryClient.invalidateQueries({ queryKey: ["tags"] });
     },
   });
 }

@@ -16,7 +16,7 @@ export function useCreateTask() {
     mutationFn: (input: CreateTaskInput) =>
       apiFetch<Task>("/tasks", { method: "POST", body: JSON.stringify(input) }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      void queryClient.invalidateQueries({ queryKey: ["tasks"] });
     },
   });
 }

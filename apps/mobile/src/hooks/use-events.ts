@@ -40,7 +40,7 @@ export function useLogEvent() {
     mutationFn: (input: CreateEventInput) =>
       apiFetch<Event>("/events", { method: "POST", body: JSON.stringify(input) }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["events"] });
+      void queryClient.invalidateQueries({ queryKey: ["events"] });
     },
   });
 }

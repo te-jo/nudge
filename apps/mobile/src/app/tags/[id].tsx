@@ -49,20 +49,23 @@ export default function TagDetailScreen() {
     Alert.alert(title, err instanceof Error ? err.message : 'Something went wrong.');
   }
 
+  async function confirmDelete() {
+    try {
+      await deleteTag.mutateAsync();
+      router.back();
+    } catch (err) {
+      alertError("Couldn't delete tag", err);
+    }
+  }
+
   function handleDelete() {
     Alert.alert('Delete tag', `Delete "${tag.label}"? This can't be undone.`, [
       { text: 'Cancel', style: 'cancel' },
       {
         text: 'Delete',
         style: 'destructive',
-        onPress: async () => {
-          try {
-            await deleteTag.mutateAsync();
-            router.back();
-          } catch (err) {
-            alertError("Couldn't delete tag", err);
-          }
-        },
+        // Alert expects a sync handler; confirmDelete handles its own errors.
+        onPress: () => void confirmDelete(),
       },
     ]);
   }
