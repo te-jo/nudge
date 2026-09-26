@@ -43,8 +43,17 @@ nudge/
     generated/        produced by `npm run docs:generate` — never hand-edit
   scripts/
     generate-docs.ts  regenerates docs/generated/
+  .claude/skills/     procedural skills for recurring workflows
   AGENTS.md
 ```
+
+This file holds conventions — *how we write code here*. `.claude/skills/` holds procedures — *how to carry out a specific multi-step task*. Check there before working out a workflow from scratch:
+
+| Skill | Covers |
+| --- | --- |
+| `ios-device-build` | Build/sign/install onto a physical iPhone. Every NFC change needs it, and it encodes the signing, provisioning and device-state failures that are painful to rediscover. |
+| `add-api-resource` | A resource end to end: shared types → schema + migration → routes → hooks → regenerated docs. |
+| `run-local` | Starting the API and Metro, the LAN setup a device needs, and where each kind of log lives. |
 
 npm workspaces wires these together (`npm install` at the root installs everything). Never `npm install` inside a workspace directly with a version that would create a nested lockfile — run installs from the repo root.
 
