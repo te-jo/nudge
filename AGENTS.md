@@ -37,6 +37,12 @@ nudge/
     mobile/         Expo app
   packages/
     shared-types/   Tag, Task, Event interfaces — single source of truth
+  docs/
+    architecture.md   hand-written: diagrams + system overview
+    decisions/        ADRs (000-template.md is the template)
+    generated/        produced by `npm run docs:generate` — never hand-edit
+  scripts/
+    generate-docs.ts  regenerates docs/generated/
   AGENTS.md
 ```
 
@@ -54,6 +60,7 @@ For every feature:
 4. Avoid speculative abstraction: don't build a generic "resource" layer for three tables, don't add config options nobody asked for.
 5. Prefer readable code over clever code.
 6. Fix type errors and lint errors before considering a feature done.
+7. If the change touched the DB schema or any API route, run `npm run docs:generate` and include the updated `docs/generated/` files in the same commit — see [Documentation](#documentation).
 
 ---
 
@@ -73,6 +80,7 @@ For every feature:
 - Validate request bodies against the shared `Create*Input`/`Update*Input` types before hitting the DB. Prefer a small runtime validator (e.g. `zod`) over hand-rolled `if` checks once payloads have more than 1-2 fields — ask before adding it if it's not already a dependency.
 - Every route returns JSON; errors return `{ error: string }` with an appropriate status code, consistently.
 - No secrets in the mobile app — anything sensitive (DB credentials, future API keys) stays server-side, read from environment variables.
+- Changing the schema or any route means `docs/generated/` is now stale — run `npm run docs:generate` before you finish. See [Documentation](#documentation).
 
 ---
 
@@ -137,13 +145,47 @@ Everything else stays NativeWind — don't reach for `StyleSheet` out of habit.
 
 ---
 
+## Documentation
+
+Docs live in `docs/` and come in three kinds. Only one of them is ever edited by hand without thinking about it.
+
+### `docs/generated/` — never hand-edit
+
+`schema.md` (Mermaid ER diagram + column tables) and `routes.md` (full route map) are produced by `scripts/generate-docs.ts` from the real source: Drizzle's table metadata and a static parse of the route files.
+
+**Regenerate whenever you touch any of these files**, and commit the result alongside the change:
+
+| If you changed… | Then run |
+| --- | --- |
+| `apps/api/src/db/schema.ts` | `npm run docs:generate` |
+| anything in `apps/api/src/routes/` | `npm run docs:generate` |
+| route mounts in `apps/api/src/index.ts` | `npm run docs:generate` |
+
+It's safe to run any time — output is idempotent, so a no-op change produces no diff. If it reports a skipped section, the expected file path moved and `scripts/generate-docs.ts` needs its path constants updated. The script is type-checked via `scripts/tsconfig.json` as part of `npm run typecheck`.
+
+A **pre-commit hook enforces this** (`.githooks/pre-commit`, wired up by the root `prepare` script on `npm install`). When a commit stages anything under `apps/api/src/db/schema.ts`, `apps/api/src/routes/`, or `apps/api/src/index.ts`, it regenerates the docs and stages the result into that same commit. Commits touching nothing else are unaffected. Two caveats worth knowing:
+
+- It reads the **working tree**, not the staged snapshot — on a partial commit, the regenerated docs reflect everything on disk, not just what you staged.
+- If `npm` isn't on the hook's PATH it warns and lets the commit through rather than blocking; `git commit --no-verify` also skips it. Either way `docs/generated/` can go stale, so re-run `npm run docs:generate` if you see that warning.
+
+### `docs/architecture.md` — hand-written
+
+Update it when the *shape* of the system changes, not on every schema tweak. That means: a new service or external dependency, a change to how the core scan flow works, a new deployment target, or a component moving between layers. Column-level detail belongs in `docs/generated/schema.md` — don't duplicate it here.
+
+### `docs/decisions/` — ADRs
+
+Write one when a decision was expensive to make or would be expensive to reverse: data model shape, a protocol, a hosting choice, a significant dependency. Copy `000-template.md` to `NNN-short-title.md`. Don't rewrite an accepted ADR to change its conclusion — add a new one and mark the old `Superseded by`. Routine coding conventions belong in this file instead.
+
+---
+
 ## Linting and Validation
 
-Run before considering a feature done (commands land here as each workspace is scaffolded):
+Run before considering a feature done:
 
 ```bash
-npm run typecheck
+npm run typecheck        # all workspaces + scripts/
 npm run lint
+npm run docs:generate    # if the schema or any route changed
 ```
 
 ---

@@ -1,0 +1,40 @@
+#!/bin/sh
+#
+# Keeps docs/generated/ in sync with the API source.
+#
+# Installed via `core.hooksPath` (set by the root package.json `prepare`
+# script, so `npm install` wires it up). Bypass with `git commit --no-verify`.
+#
+# Note: the generator reads the working tree, not the staged snapshot. With a
+# partial commit (some schema edits staged, others not), the regenerated docs
+# reflect everything on disk.
+
+set -e
+
+# Nothing the docs are derived from? Leave the commit alone.
+STAGED=$(git diff --cached --name-only --diff-filter=ACMR)
+echo "$STAGED" | grep -qE '^apps/api/src/(db/schema\.ts|index\.ts|routes/)' || exit 0
+
+# Git hooks run with a minimal environment — GUI clients in particular often
+# don't have nvm's node on PATH.
+if ! command -v npm >/dev/null 2>&1; then
+  export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+  # shellcheck disable=SC1091
+  [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" >/dev/null 2>&1 || true
+fi
+
+if ! command -v npm >/dev/null 2>&1; then
+  echo "pre-commit: WARNING — npm not found, skipping docs:generate." >&2
+  echo "pre-commit: docs/generated/ may now be stale. Run 'npm run docs:generate' and amend." >&2
+  exit 0
+fi
+
+echo "pre-commit: schema/routes changed — regenerating docs/generated/…"
+npm run --silent docs:generate
+
+# --porcelain (not `git diff`) so this also catches generated files that are
+# still untracked, e.g. a newly added output file.
+if [ -n "$(git status --porcelain -- docs/generated)" ]; then
+  git add docs/generated
+  echo "pre-commit: docs/generated/ was stale — regenerated and added to this commit."
+fi
