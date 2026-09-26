@@ -1,15 +1,15 @@
 {
   "expo": {
-    "name": "mobile",
-    "slug": "mobile",
+    "name": "nudge",
+    "slug": "nudge",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "mobile",
+    "scheme": "nudge",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon",
-      "bundleIdentifier": "com.anonymous.mobile",
+      "bundleIdentifier": "com.jovanatesovic.nudge",
       "appleTeamId": "99F877S57Q"
     },
     "android": {
