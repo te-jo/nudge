@@ -2,7 +2,7 @@ import { Router } from "express";
 import { and, desc, eq, lt, type SQL } from "drizzle-orm";
 import { db } from "../db/client";
 import { events, folders, tags, tasks } from "../db/schema";
-import { createEventSchema } from "../lib/validation";
+import { createEventSchema, updateEventSchema } from "../lib/validation";
 import { parseBody } from "../lib/parse-body";
 import { HttpError } from "../lib/http-error";
 
@@ -63,4 +63,23 @@ eventsRouter.post("/", async (req, res) => {
     .returning();
 
   res.status(201).json(row);
+});
+
+// Corrections to a logged event. createdAt stays put — it's the record of
+// when the tap actually happened.
+eventsRouter.patch("/:id", async (req, res) => {
+  const input = parseBody(updateEventSchema, req.body);
+  const [row] = await db
+    .update(events)
+    .set(input)
+    .where(eq(events.id, req.params.id))
+    .returning();
+  if (!row) throw new HttpError(404, "Event not found");
+  res.json(row);
+});
+
+eventsRouter.delete("/:id", async (req, res) => {
+  const [row] = await db.delete(events).where(eq(events.id, req.params.id)).returning();
+  if (!row) throw new HttpError(404, "Event not found");
+  res.status(204).send();
 });

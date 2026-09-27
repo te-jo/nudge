@@ -16,6 +16,12 @@ export interface CreateEventInput {
   note?: string | null;
 }
 
+/** Corrections to an already-logged event — a mis-tap, or adding a note after the fact. */
+export interface UpdateEventInput {
+  note?: string | null;
+  taskId?: string | null;
+}
+
 /** History list items are usually rendered with their task/tag names, not just ids. */
 export interface EventWithRelations extends Event {
   tagLabel: string;

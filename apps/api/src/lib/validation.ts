@@ -4,6 +4,7 @@ import type {
   CreateFolderInput,
   CreateTagInput,
   CreateTaskInput,
+  UpdateEventInput,
   UpdateFolderInput,
   UpdateTagInput,
   UpdateTaskInput,
@@ -39,3 +40,8 @@ export const createEventSchema = z.object({
   tagId: z.uuid(),
   note: z.string().min(1).nullable().optional(),
 }) satisfies z.ZodType<CreateEventInput>;
+
+export const updateEventSchema = z.object({
+  note: z.string().min(1).nullable().optional(),
+  taskId: z.uuid().nullable().optional(),
+}) satisfies z.ZodType<UpdateEventInput>;
