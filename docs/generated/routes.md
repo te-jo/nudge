@@ -5,7 +5,7 @@
 
 Generated from `apps/api/src/routes`, `apps/api/src/index.ts`.
 
-14 routes.
+19 routes.
 
 ### `/events`
 
@@ -15,6 +15,18 @@ Defined in `apps/api/src/routes/events.ts`.
 | --- | --- | --- |
 | GET | `/events` | History list, newest first. Optionally scoped to one tag or task (used by the Tag detail screen). `before` (an event's createdAt) pages backwards through older events — the client re-requests with the last row's createdAt once it gets back a full page. |
 | POST | `/events` | Logs a tap. Only `tagId` comes from the client — the task is snapshotted server-side from the tag's current assignment. |
+
+### `/folders`
+
+Defined in `apps/api/src/routes/folders.ts`.
+
+| Method | Path | Notes |
+| --- | --- | --- |
+| GET | `/folders` | — |
+| GET | `/folders/:id` | — |
+| POST | `/folders` | — |
+| PATCH | `/folders/:id` | — |
+| DELETE | `/folders/:id` | Tasks in this folder are kept — their folder_id is set to null by the FK. |
 
 ### `/tags`
 

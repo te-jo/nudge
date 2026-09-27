@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { and, desc, eq, lt, type SQL } from "drizzle-orm";
 import { db } from "../db/client";
-import { events, tags, tasks } from "../db/schema";
+import { events, folders, tags, tasks } from "../db/schema";
 import { createEventSchema } from "../lib/validation";
 import { parseBody } from "../lib/parse-body";
 import { HttpError } from "../lib/http-error";
@@ -36,10 +36,12 @@ eventsRouter.get("/", async (req, res) => {
       createdAt: events.createdAt,
       tagLabel: tags.label,
       taskName: tasks.name,
+      folderName: folders.name,
     })
     .from(events)
     .leftJoin(tags, eq(events.tagId, tags.id))
     .leftJoin(tasks, eq(events.taskId, tasks.id))
+    .leftJoin(folders, eq(tasks.folderId, folders.id))
     .where(conditions.length ? and(...conditions) : undefined)
     .orderBy(desc(events.createdAt))
     .limit(limit);

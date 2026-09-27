@@ -1,3 +1,4 @@
+export * from "./folder";
 export * from "./tag";
 export * from "./task";
 export * from "./event";

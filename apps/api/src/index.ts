@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express, { type ErrorRequestHandler } from "express";
 import cors from "cors";
+import { foldersRouter } from "./routes/folders";
 import { tagsRouter } from "./routes/tags";
 import { tasksRouter } from "./routes/tasks";
 import { eventsRouter } from "./routes/events";
@@ -23,6 +24,7 @@ app.get("/health", (_req, res) => {
   res.json({ ok: true });
 });
 
+app.use("/folders", foldersRouter);
 app.use("/tags", tagsRouter);
 app.use("/tasks", tasksRouter);
 app.use("/events", eventsRouter);

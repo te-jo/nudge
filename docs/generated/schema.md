@@ -10,12 +10,19 @@ erDiagram
     tags ||--o{ events : "tag_id (cascade)"
     tasks |o--o{ events : "task_id (set null)"
     tasks |o--o{ tags : "task_id (set null)"
+    folders |o--o{ tasks : "folder_id (set null)"
     events {
         uuid id PK "has default"
         uuid tag_id FK
         uuid task_id FK "nullable"
         text note "nullable"
         timestamptz created_at "has default"
+    }
+    folders {
+        uuid id PK "has default"
+        text name
+        timestamptz created_at "has default"
+        timestamptz updated_at "has default"
     }
     tags {
         uuid id PK "has default"
@@ -30,6 +37,7 @@ erDiagram
         text name
         text description "nullable"
         text color "nullable"
+        uuid folder_id FK "nullable"
         timestamptz created_at "has default"
         timestamptz updated_at "has default"
     }
@@ -46,6 +54,15 @@ erDiagram
 | `task_id` | `uuid` | → tasks.id (on delete set null) |
 | `note` | `text` | — |
 | `created_at` | `timestamp with time zone` | not null, default |
+
+### `folders`
+
+| Column | Type | Constraints |
+| --- | --- | --- |
+| `id` | `uuid` | primary key, not null, default |
+| `name` | `text` | not null |
+| `created_at` | `timestamp with time zone` | not null, default |
+| `updated_at` | `timestamp with time zone` | not null, default |
 
 ### `tags`
 
@@ -66,5 +83,6 @@ erDiagram
 | `name` | `text` | not null |
 | `description` | `text` | — |
 | `color` | `text` | — |
+| `folder_id` | `uuid` | → folders.id (on delete set null) |
 | `created_at` | `timestamp with time zone` | not null, default |
 | `updated_at` | `timestamp with time zone` | not null, default |

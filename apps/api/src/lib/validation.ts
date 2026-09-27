@@ -1,10 +1,25 @@
 import { z } from "zod";
-import type { CreateEventInput, CreateTagInput, CreateTaskInput, UpdateTagInput, UpdateTaskInput } from "@nudge/shared-types";
+import type {
+  CreateEventInput,
+  CreateFolderInput,
+  CreateTagInput,
+  CreateTaskInput,
+  UpdateFolderInput,
+  UpdateTagInput,
+  UpdateTaskInput,
+} from "@nudge/shared-types";
+
+export const createFolderSchema = z.object({
+  name: z.string().min(1),
+}) satisfies z.ZodType<CreateFolderInput>;
+
+export const updateFolderSchema = createFolderSchema.partial() satisfies z.ZodType<UpdateFolderInput>;
 
 export const createTaskSchema = z.object({
   name: z.string().min(1),
   description: z.string().min(1).nullable().optional(),
   color: z.string().min(1).nullable().optional(),
+  folderId: z.uuid().nullable().optional(),
 }) satisfies z.ZodType<CreateTaskInput>;
 
 export const updateTaskSchema = createTaskSchema.partial() satisfies z.ZodType<UpdateTaskInput>;

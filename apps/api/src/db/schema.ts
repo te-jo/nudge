@@ -1,11 +1,19 @@
 import { pgTable, uuid, text, timestamp } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
+export const folders = pgTable("folders", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export const tasks = pgTable("tasks", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
   description: text("description"),
   color: text("color"),
+  folderId: uuid("folder_id").references(() => folders.id, { onDelete: "set null" }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
@@ -31,7 +39,12 @@ export const events = pgTable("events", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
-export const tasksRelations = relations(tasks, ({ many }) => ({
+export const foldersRelations = relations(folders, ({ many }) => ({
+  tasks: many(tasks),
+}));
+
+export const tasksRelations = relations(tasks, ({ one, many }) => ({
+  folder: one(folders, { fields: [tasks.folderId], references: [folders.id] }),
   tags: many(tags),
   events: many(events),
 }));

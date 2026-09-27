@@ -20,4 +20,6 @@ export interface CreateEventInput {
 export interface EventWithRelations extends Event {
   tagLabel: string;
   taskName: string | null;
+  /** Folder of the event's task, resolved at read time (not snapshotted). */
+  folderName: string | null;
 }
