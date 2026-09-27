@@ -7,7 +7,7 @@ import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from 'rea
 import { Button } from '@/components/button';
 import { EventRow } from '@/components/event-row';
 import { Screen } from '@/components/screen';
-import { useRecentEvents } from '@/hooks/use-events';
+import { useLogEvent, useRecentEvents } from '@/hooks/use-events';
 import { useTasks } from '@/hooks/use-tasks';
 import { ApiError, apiFetch } from '@/lib/api';
 import { NfcNotSupportedError, readTagToken } from '@/lib/nfc';
@@ -24,6 +24,7 @@ export default function HomeScreen() {
   const router = useRouter();
   const recentEvents = useRecentEvents(5);
   const tasks = useTasks();
+  const logEvent = useLogEvent();
   const [scan, setScan] = useState<ScanState>({ status: 'idle' });
 
   // Success confirmation clears itself; anything else waits for the user.
@@ -54,8 +55,9 @@ export default function HomeScreen() {
         throw err;
       }
 
-      await apiFetch('/events', { method: 'POST', body: JSON.stringify({ tagId: tag.id }) });
-      void recentEvents.refetch();
+      // Via the hook so every events query (recent, history, task stats)
+      // gets invalidated, not just this screen's.
+      await logEvent.mutateAsync({ tagId: tag.id });
 
       const taskName = tasks.data?.find((task) => task.id === tag.taskId)?.name;
       setScan({ status: 'logged', taskName: taskName ?? tag.label });

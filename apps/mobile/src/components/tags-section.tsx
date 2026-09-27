@@ -21,6 +21,7 @@ export function TagsSection({ uid }: { uid?: string }) {
   const deleteTag = useDeleteTagById();
 
   const [assigning, setAssigning] = useState<Tag | null>(null);
+  const [menuFor, setMenuFor] = useState<Tag | null>(null);
   const [wiping, setWiping] = useState(false);
 
   const taskById = useMemo(() => {
@@ -65,27 +66,10 @@ export function TagsSection({ uid }: { uid?: string }) {
     );
   }
 
+  // A custom sheet rather than Alert.alert: Android caps alerts at three
+  // buttons and silently drops the rest, which would hide Delete and Cancel.
   function openMenu(tag: Tag) {
-    const linked = tag.taskId ? taskById.get(tag.taskId) : null;
-    Alert.alert(tag.label, linked ? `Logs "${linked.name}"` : 'No task assigned', [
-      { text: linked ? 'Change task' : 'Assign task', onPress: () => setAssigning(tag) },
-      ...(tag.taskId
-        ? [
-            {
-              text: 'Unassign task',
-              onPress: () =>
-                setTagTask.mutate(
-                  { tagId: tag.id, taskId: null },
-                  { onError: (err) => alertError("Couldn't unassign task", err) },
-                ),
-            },
-          ]
-        : []),
-      { text: 'Open details', onPress: () => router.push(`/tags/${tag.id}`) },
-      { text: 'Wipe chip', style: 'destructive', onPress: () => confirmWipe(tag) },
-      { text: 'Delete tag', style: 'destructive', onPress: () => confirmDelete(tag) },
-      { text: 'Cancel', style: 'cancel' },
-    ]);
+    setMenuFor(tag);
   }
 
   if (tags.isLoading) {
@@ -97,22 +81,29 @@ export function TagsSection({ uid }: { uid?: string }) {
   }
 
   const rows = tags.data ?? [];
+  // Once the scanned tag has been registered, the uid param is stale — don't
+  // keep offering to register it (that would hit the unique constraint).
+  const pendingUid = uid && !rows.some((tag) => tag.uid === uid) ? uid : undefined;
 
   return (
     <View className="gap-4">
-      {uid ? (
+      {pendingUid ? (
         <View className="gap-1 rounded-xl border border-gray-200 p-4 dark:border-gray-700">
           <Text className="text-sm text-gray-500 dark:text-gray-400">Scanned tag, not registered</Text>
           <Text className="text-base text-black dark:text-white" numberOfLines={1}>
-            {uid}
+            {pendingUid}
           </Text>
         </View>
       ) : null}
 
       <Button
-        title={uid ? 'Register This Tag' : 'Register a Tag'}
+        title={pendingUid ? 'Register This Tag' : 'Register a Tag'}
         onPress={() =>
-          router.push(uid ? { pathname: '/tags/register', params: { uid } } : '/tags/register')
+          router.push(
+            pendingUid
+              ? { pathname: '/tags/register', params: { uid: pendingUid } }
+              : '/tags/register',
+          )
         }
       />
 
@@ -152,6 +143,62 @@ export function TagsSection({ uid }: { uid?: string }) {
           })}
         </View>
       )}
+
+      <Modal
+        visible={!!menuFor}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setMenuFor(null)}>
+        <Pressable
+          onPress={() => setMenuFor(null)}
+          style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.4)' }}>
+          <View className="m-4 overflow-hidden rounded-xl bg-white dark:bg-gray-900">
+            {menuFor
+              ? (
+                  [
+                    {
+                      label: menuFor.taskId ? 'Change task' : 'Assign task',
+                      onPress: () => setAssigning(menuFor),
+                    },
+                    ...(menuFor.taskId
+                      ? [
+                          {
+                            label: 'Unassign task',
+                            onPress: () =>
+                              setTagTask.mutate(
+                                { tagId: menuFor.id, taskId: null },
+                                { onError: (err) => alertError("Couldn't unassign task", err) },
+                              ),
+                          },
+                        ]
+                      : []),
+                    { label: 'Open details', onPress: () => router.push(`/tags/${menuFor.id}`) },
+                    { label: 'Wipe chip', destructive: true, onPress: () => confirmWipe(menuFor) },
+                    { label: 'Delete tag', destructive: true, onPress: () => confirmDelete(menuFor) },
+                  ] as { label: string; destructive?: boolean; onPress: () => void }[]
+                ).map((action) => (
+                  <Pressable
+                    key={action.label}
+                    onPress={() => {
+                      setMenuFor(null);
+                      action.onPress();
+                    }}
+                    className="border-b border-gray-100 px-4 py-4 active:bg-gray-50 dark:border-gray-800 dark:active:bg-gray-800">
+                    <Text
+                      className={
+                        action.destructive ? 'text-red-600' : 'text-black dark:text-white'
+                      }>
+                      {action.label}
+                    </Text>
+                  </Pressable>
+                ))
+              : null}
+            <Pressable onPress={() => setMenuFor(null)} className="px-4 py-4">
+              <Text className="text-gray-500 dark:text-gray-400">Cancel</Text>
+            </Pressable>
+          </View>
+        </Pressable>
+      </Modal>
 
       <Modal
         visible={!!assigning}

@@ -51,9 +51,18 @@ export function TaskFormSheet({
   const [folderId, setFolderId] = useState<string | null>(task?.folderId ?? null);
   const [newFolderName, setNewFolderName] = useState('');
   const [tagId, setTagId] = useState<string | null>(linkedTag?.id ?? null);
+  // Tags may still be loading when this opens, in which case `linkedTag` is
+  // null and `tagId` starts wrong. Only touch tag links if the user actually
+  // picked something, so a save can't silently unlink an untouched tag.
+  const [tagTouched, setTagTouched] = useState(false);
   const [saving, setSaving] = useState(false);
 
   // Remount via `key` on the caller resets these, so no effect syncing needed.
+
+  function chooseTag(id: string | null) {
+    setTagTouched(true);
+    setTagId(id);
+  }
 
   async function handleSave() {
     const trimmed = name.trim();
@@ -78,10 +87,17 @@ export function TaskFormSheet({
           })
         : await createTask.mutateAsync({ name: trimmed, folderId: resolvedFolderId });
 
-      // The FK lives on the tag, so linking means patching the tag.
-      if (tagId !== (linkedTag?.id ?? null)) {
-        if (linkedTag) await setTagTask.mutateAsync({ tagId: linkedTag.id, taskId: null });
-        if (tagId) await setTagTask.mutateAsync({ tagId, taskId: saved.id });
+      // The FK lives on the tag, so linking means patching the tag. Re-read
+      // the current link at save time rather than trusting what was loaded
+      // when the sheet opened.
+      if (tagTouched) {
+        const currentlyLinked = tags.data?.find((tag) => tag.taskId === saved.id) ?? null;
+        if (tagId !== (currentlyLinked?.id ?? null)) {
+          if (currentlyLinked) {
+            await setTagTask.mutateAsync({ tagId: currentlyLinked.id, taskId: null });
+          }
+          if (tagId) await setTagTask.mutateAsync({ tagId, taskId: saved.id });
+        }
       }
 
       onClose();
@@ -156,7 +172,7 @@ export function TaskFormSheet({
           <View className="gap-2">
             <Text className="text-base font-semibold text-black dark:text-white">Tag</Text>
             <View className="flex-row flex-wrap gap-2">
-              <Chip label="No tag" selected={tagId === null} onPress={() => setTagId(null)} />
+              <Chip label="No tag" selected={tagId === null} onPress={() => chooseTag(null)} />
               {(tags.data ?? [])
                 .filter((tag: Tag) => !tag.taskId || tag.taskId === task?.id)
                 .map((tag: Tag) => (
@@ -164,7 +180,7 @@ export function TaskFormSheet({
                     key={tag.id}
                     label={tag.label}
                     selected={tagId === tag.id}
-                    onPress={() => setTagId(tag.id)}
+                    onPress={() => chooseTag(tag.id)}
                   />
                 ))}
             </View>

@@ -8,7 +8,7 @@ import NfcManager, { Ndef, NfcTech } from "react-native-nfc-manager";
  * The real implementation below is verified working on device — flip this
  * back to `false` before testing anything NFC for real.
  */
-export const USE_NFC_STUB = true;
+export const USE_NFC_STUB = false;
 
 /** Set this to a registered tag's uid to exercise the "known tag" path. */
 const STUB_TAG_UID = "stub-tag-uid";
