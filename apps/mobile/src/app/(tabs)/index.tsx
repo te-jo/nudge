@@ -1,88 +1,134 @@
+import Feather from '@expo/vector-icons/Feather';
 import type { Tag } from '@nudge/shared-types';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from 'react-native';
 
 import { Button } from '@/components/button';
 import { EventRow } from '@/components/event-row';
 import { Screen } from '@/components/screen';
 import { useRecentEvents } from '@/hooks/use-events';
+import { useTasks } from '@/hooks/use-tasks';
 import { ApiError, apiFetch } from '@/lib/api';
 import { NfcNotSupportedError, readTagToken } from '@/lib/nfc';
 
+type ScanState =
+  | { status: 'idle' }
+  | { status: 'scanning' }
+  | { status: 'logged'; taskName: string }
+  | { status: 'unregistered'; uid: string | null };
+
+const SUCCESS_VISIBLE_MS = 2000;
+
 export default function HomeScreen() {
   const router = useRouter();
-  const [scanning, setScanning] = useState(false);
   const recentEvents = useRecentEvents(5);
+  const tasks = useTasks();
+  const [scan, setScan] = useState<ScanState>({ status: 'idle' });
+
+  // Success confirmation clears itself; anything else waits for the user.
+  useEffect(() => {
+    if (scan.status !== 'logged') return;
+    const timer = setTimeout(() => setScan({ status: 'idle' }), SUCCESS_VISIBLE_MS);
+    return () => clearTimeout(timer);
+  }, [scan]);
 
   async function handleScan() {
-    setScanning(true);
+    setScan({ status: 'scanning' });
     try {
-      const token = await readTagToken();
-      if (!token) {
-        // Blank tag — never registered with nudge.
-        router.push('/tags/register');
+      const uid = await readTagToken();
+      if (!uid) {
+        // Blank tag — nothing written to it yet, so there's no uid to carry over.
+        setScan({ status: 'unregistered', uid: null });
         return;
       }
 
-      // A 404 here means the tag isn't registered — send it to register.
-      // A 404 from the /events POST below is a different failure (e.g. the
-      // tag was deleted mid-scan) and must NOT be treated the same way, or
-      // we'd silently overwrite the tag's NDEF data on the register screen.
       let tag: Tag;
       try {
-        tag = await apiFetch<Tag>(`/tags/uid/${encodeURIComponent(token)}`);
+        tag = await apiFetch<Tag>(`/tags/uid/${encodeURIComponent(uid)}`);
       } catch (err) {
         if (err instanceof ApiError && err.status === 404) {
-          router.push('/tags/register');
+          setScan({ status: 'unregistered', uid });
           return;
         }
         throw err;
       }
 
       await apiFetch('/events', { method: 'POST', body: JSON.stringify({ tagId: tag.id }) });
-      router.push(`/tags/${tag.id}`);
+      void recentEvents.refetch();
+
+      const taskName = tasks.data?.find((task) => task.id === tag.taskId)?.name;
+      setScan({ status: 'logged', taskName: taskName ?? tag.label });
     } catch (err) {
+      setScan({ status: 'idle' });
       if (err instanceof NfcNotSupportedError) {
         Alert.alert('NFC not supported', err.message);
       } else if (err instanceof Error) {
         Alert.alert('Scan failed', err.message);
       }
-    } finally {
-      setScanning(false);
     }
   }
 
+  const events = recentEvents.data ?? [];
+
   return (
     <Screen>
-      <ScrollView contentContainerClassName="gap-6 p-4" keyboardShouldPersistTaps="handled">
-        <View className="gap-1">
-          <Text className="text-3xl font-bold text-black dark:text-white">nudge</Text>
-          <Text className="text-base text-gray-500 dark:text-gray-400">Tap a tag to log it.</Text>
-        </View>
+      <ScrollView contentContainerClassName="gap-8 p-4">
+        <View className="items-center gap-5 pt-10">
+          <Pressable
+            onPress={handleScan}
+            disabled={scan.status === 'scanning'}
+            className="h-44 w-44 items-center justify-center rounded-full bg-blue-600 active:bg-blue-700 disabled:opacity-60">
+            {scan.status === 'scanning' ? (
+              <ActivityIndicator color="white" size="large" />
+            ) : (
+              <Text className="text-2xl font-semibold text-white">Scan</Text>
+            )}
+          </Pressable>
 
-        <View className="gap-2">
-          <Button title={scanning ? 'Scanning…' : 'Scan Tag'} onPress={handleScan} disabled={scanning} />
-          {scanning ? (
-            <View className="items-center">
-              <ActivityIndicator />
+          {scan.status === 'logged' ? (
+            <View className="w-full flex-row items-center justify-center gap-2 rounded-xl bg-green-50 p-4 dark:bg-green-950">
+              <Feather name="check-circle" size={20} color="#16a34a" />
+              <Text className="text-base font-medium text-green-700 dark:text-green-400">
+                Logged {scan.taskName}
+              </Text>
+            </View>
+          ) : null}
+
+          {scan.status === 'unregistered' ? (
+            <View className="w-full gap-3 rounded-xl border border-gray-200 p-4 dark:border-gray-700">
+              <Text className="text-center text-base text-black dark:text-white">
+                This tag isn&apos;t registered yet
+              </Text>
+              <Button
+                title="Register it"
+                onPress={() =>
+                  router.push(scan.uid ? { pathname: '/add', params: { uid: scan.uid } } : '/add')
+                }
+              />
             </View>
           ) : null}
         </View>
 
         <View>
-          <Text className="mb-2 text-lg font-semibold text-black dark:text-white">Recent</Text>
+          <Text className="mb-2 px-4 text-lg font-semibold text-black dark:text-white">Recent</Text>
+
           {recentEvents.isLoading ? (
             <ActivityIndicator />
-          ) : recentEvents.data && recentEvents.data.length > 0 ? (
-            <View className="overflow-hidden rounded-xl border border-gray-100 dark:border-gray-800">
-              {recentEvents.data.map((event) => (
-                <EventRow key={event.id} event={event} />
-              ))}
-            </View>
+          ) : events.length > 0 ? (
+            <>
+              <View className="overflow-hidden rounded-xl border border-gray-100 dark:border-gray-800">
+                {events.map((event) => (
+                  <EventRow key={event.id} event={event} />
+                ))}
+              </View>
+              <Pressable onPress={() => router.push('/logs')} className="mt-3 items-center">
+                <Text className="font-medium text-blue-600">See all</Text>
+              </Pressable>
+            </>
           ) : (
-            <Text className="text-gray-500 dark:text-gray-400">
-              No events yet — tap a tag to get started.
+            <Text className="px-4 text-gray-500 dark:text-gray-400">
+              No scans yet. Tap the button to scan your first tag.
             </Text>
           )}
         </View>

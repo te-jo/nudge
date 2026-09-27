@@ -1,30 +1,45 @@
-import { Ionicons } from '@expo/vector-icons';
+import Feather from '@expo/vector-icons/Feather';
 import { Tabs } from 'expo-router';
 
 export default function TabsLayout() {
   return (
-    <Tabs screenOptions={{ headerShown: false }}>
+    <Tabs
+      screenOptions={{
+        headerShown: false,
+        tabBarShowLabel: false,
+      }}>
       <Tabs.Screen
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color, size }) => <Ionicons name="home" color={color} size={size} />,
+          tabBarIcon: ({ color, size }) => <Feather name="home" color={color} size={size} />,
         }}
       />
       <Tabs.Screen
-        name="tags"
+        name="add"
         options={{
-          title: 'Tags',
-          tabBarIcon: ({ color, size }) => <Ionicons name="grid" color={color} size={size} />,
+          title: 'Add',
+          tabBarIcon: ({ color, size }) => <Feather name="plus-circle" color={color} size={size} />,
         }}
       />
       <Tabs.Screen
-        name="history"
+        name="logs"
         options={{
-          title: 'History',
-          tabBarIcon: ({ color, size }) => <Ionicons name="time" color={color} size={size} />,
+          title: 'Logs',
+          tabBarIcon: ({ color, size }) => <Feather name="list" color={color} size={size} />,
         }}
       />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'Profile',
+          tabBarIcon: ({ color, size }) => <Feather name="user" color={color} size={size} />,
+        }}
+      />
+
+      {/* Tags grid is still reachable (Tag detail pushes from it), just not a
+          tab any more. href: null keeps the route without a tab bar entry. */}
+      <Tabs.Screen name="tags" options={{ href: null }} />
     </Tabs>
   );
 }

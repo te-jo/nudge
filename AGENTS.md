@@ -125,7 +125,11 @@ Tags are identified by an app-generated token written into the tag's NDEF data �
 - `writeTagToken(token)` — overwrites a tag's NDEF data with a token.
 - `generateTagToken()` — a fresh random token (`expo-crypto`'s `randomUUID`) for registering a new tag.
 
-Scan flow (Home screen): read → if a token comes back, resolve it via `GET /tags/uid/:token`. Found → log the event immediately and open the tag. Not found (or blank tag) → send the user to `tags/register`, which always writes a *fresh* token on save rather than trying to reuse whatever was read — simpler than branching on "has a token but unregistered" vs. "truly blank."
+Scan flow (Home screen): read → if a token comes back, resolve it via `GET /tags/uid/:token`. Found → log the event and show a confirmation that clears itself. Not found → offer to register, carrying the scanned uid through `add?uid=…` into `tags/register?uid=…`.
+
+`tags/register` mints a token only when it doesn't already have one: given a `uid` param it reuses that token and skips the NFC write entirely (the chip already carries it); with no param it calls `generateTagToken()` and writes. A blank tag reads back `null`, so it takes the no-param path.
+
+`USE_NFC_STUB` in `src/lib/nfc.ts` swaps both read and write for delayed fakes, so the flow can be exercised in a simulator or on web. It must be `false` to test real tags — the hardware path is verified working, so if scanning "succeeds" suspiciously fast, check this flag first.
 
 NFC requires a custom dev client — it doesn't work in Expo Go, and it doesn't work in any simulator/emulator (no software NFC radio). Testing the real tap requires a physical device with a dev client build installed (`npx expo prebuild` + local Xcode/Android Studio, or EAS Build). Everything else (tasks, tags, history, manual "Log Event Now" on the Tag detail screen) works fine in Expo Go / the web build without a physical tag.
 

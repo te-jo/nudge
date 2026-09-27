@@ -1,6 +1,22 @@
 import * as Crypto from "expo-crypto";
 import NfcManager, { Ndef, NfcTech } from "react-native-nfc-manager";
 
+/**
+ * Simulate scans instead of touching the NFC radio, so the flow can be
+ * exercised in a simulator, on web, or without a physical tag.
+ *
+ * The real implementation below is verified working on device — flip this
+ * back to `false` before testing anything NFC for real.
+ */
+export const USE_NFC_STUB = true;
+
+/** Set this to a registered tag's uid to exercise the "known tag" path. */
+const STUB_TAG_UID = "stub-tag-uid";
+
+const STUB_DELAY_MS = 1000;
+
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 let started = false;
 
 async function ensureStarted() {
@@ -32,6 +48,11 @@ async function withNdefSession<T>(run: () => Promise<T>): Promise<T> {
  * has no NDEF data yet — i.e. it's never been registered with nudge.
  */
 export async function readTagToken(): Promise<string | null> {
+  if (USE_NFC_STUB) {
+    await wait(STUB_DELAY_MS);
+    return STUB_TAG_UID;
+  }
+
   return withNdefSession(async () => {
     const tag = await NfcManager.getTag();
     const record = tag?.ndefMessage?.[0];
@@ -42,6 +63,11 @@ export async function readTagToken(): Promise<string | null> {
 
 /** Writes a fresh token onto a tag, overwriting any existing NDEF data. */
 export async function writeTagToken(token: string): Promise<void> {
+  if (USE_NFC_STUB) {
+    await wait(STUB_DELAY_MS);
+    return;
+  }
+
   await withNdefSession(async () => {
     const bytes = Ndef.encodeMessage([Ndef.textRecord(token)]);
     await NfcManager.ndefHandler.writeNdefMessage(bytes);

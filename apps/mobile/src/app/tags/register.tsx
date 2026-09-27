@@ -1,4 +1,4 @@
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, Text, TextInput, View } from 'react-native';
 
@@ -15,6 +15,10 @@ export default function RegisterTagScreen() {
   const tasks = useTasks();
   const createTag = useCreateTag();
 
+  // A uid arrives when the user scanned a tag that already carries a token but
+  // isn't registered. Reuse it rather than overwriting the chip.
+  const { uid: scannedUid } = useLocalSearchParams<{ uid?: string }>();
+
   const [label, setLabel] = useState('');
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [writing, setWriting] = useState(false);
@@ -28,8 +32,12 @@ export default function RegisterTagScreen() {
 
     setWriting(true);
     try {
-      const token = generateTagToken();
-      await writeTagToken(token);
+      let token = scannedUid;
+      if (!token) {
+        token = generateTagToken();
+        await writeTagToken(token);
+      }
+
       const tag = await createTag.mutateAsync({
         uid: token,
         label: trimmedLabel,
@@ -65,7 +73,9 @@ export default function RegisterTagScreen() {
 
         <View className="gap-2">
           <Button
-            title={writing ? 'Hold tag to phone…' : 'Write & Save'}
+            title={
+              writing && !scannedUid ? 'Hold tag to phone…' : scannedUid ? 'Save Tag' : 'Write & Save'
+            }
             onPress={handleSave}
             disabled={writing}
           />

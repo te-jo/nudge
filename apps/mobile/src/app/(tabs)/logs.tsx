@@ -4,14 +4,14 @@ import { EventRow } from '@/components/event-row';
 import { Screen } from '@/components/screen';
 import { useEventHistory } from '@/hooks/use-events';
 
-export default function HistoryScreen() {
+export default function LogsScreen() {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useEventHistory();
   const events = data?.pages.flat() ?? [];
 
   return (
     <Screen>
       <View className="px-4 pb-2 pt-4">
-        <Text className="text-2xl font-bold text-black dark:text-white">History</Text>
+        <Text className="text-2xl font-bold text-black dark:text-white">Logs</Text>
       </View>
 
       {isLoading ? (
