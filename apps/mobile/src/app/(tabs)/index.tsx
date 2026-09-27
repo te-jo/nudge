@@ -103,7 +103,10 @@ export default function HomeScreen() {
               <Button
                 title="Register it"
                 onPress={() =>
-                  router.push(scan.uid ? { pathname: '/add', params: { uid: scan.uid } } : '/add')
+                  router.push({
+                    pathname: '/library',
+                    params: scan.uid ? { view: 'Tags', uid: scan.uid } : { view: 'Tags' },
+                  })
                 }
               />
             </View>
@@ -122,7 +125,9 @@ export default function HomeScreen() {
                   <EventRow key={event.id} event={event} />
                 ))}
               </View>
-              <Pressable onPress={() => router.push('/logs')} className="mt-3 items-center">
+              <Pressable
+                onPress={() => router.push({ pathname: '/library', params: { view: 'Logs' } })}
+                className="mt-3 items-center">
                 <Text className="font-medium text-blue-600">See all</Text>
               </Pressable>
             </>

@@ -56,6 +56,18 @@ export function useUpdateTag(id: string) {
   });
 }
 
+/** Takes the id per call, for use from a list. */
+export function useDeleteTagById() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => apiFetch<void>(`/tags/${id}`, { method: "DELETE" }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["tags"] });
+      void queryClient.invalidateQueries({ queryKey: ["events"] });
+    },
+  });
+}
+
 export function useDeleteTag(id: string) {
   const queryClient = useQueryClient();
   return useMutation({

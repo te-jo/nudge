@@ -1,5 +1,10 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { CreateEventInput, Event, EventWithRelations } from "@nudge/shared-types";
+import type {
+  CreateEventInput,
+  Event,
+  EventWithRelations,
+  UpdateEventInput,
+} from "@nudge/shared-types";
 
 import { apiFetch } from "@/lib/api";
 
@@ -67,6 +72,27 @@ export function useLogEvent() {
   return useMutation({
     mutationFn: (input: CreateEventInput) =>
       apiFetch<Event>("/events", { method: "POST", body: JSON.stringify(input) }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["events"] });
+    },
+  });
+}
+
+export function useUpdateEvent() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, input }: { id: string; input: UpdateEventInput }) =>
+      apiFetch<Event>(`/events/${id}`, { method: "PATCH", body: JSON.stringify(input) }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["events"] });
+    },
+  });
+}
+
+export function useDeleteEvent() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => apiFetch<void>(`/events/${id}`, { method: "DELETE" }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["events"] });
     },

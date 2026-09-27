@@ -16,17 +16,10 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="add"
+        name="library"
         options={{
-          title: 'Add',
-          tabBarIcon: ({ color, size }) => <Feather name="plus-circle" color={color} size={size} />,
-        }}
-      />
-      <Tabs.Screen
-        name="logs"
-        options={{
-          title: 'Logs',
-          tabBarIcon: ({ color, size }) => <Feather name="list" color={color} size={size} />,
+          title: 'Library',
+          tabBarIcon: ({ color, size }) => <Feather name="layers" color={color} size={size} />,
         }}
       />
       <Tabs.Screen
@@ -37,8 +30,7 @@ export default function TabsLayout() {
         }}
       />
 
-      {/* Tags grid is still reachable (Tag detail pushes from it), just not a
-          tab any more. href: null keeps the route without a tab bar entry. */}
+      {/* Tag detail pushes from here, so the route stays — just not a tab. */}
       <Tabs.Screen name="tags" options={{ href: null }} />
     </Tabs>
   );

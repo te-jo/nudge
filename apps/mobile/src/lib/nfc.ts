@@ -74,6 +74,22 @@ export async function writeTagToken(token: string): Promise<void> {
   });
 }
 
+/**
+ * Blanks a tag's NDEF data by writing a single empty record, so the chip
+ * reads back as unregistered and can be handed to a new task.
+ */
+export async function wipeTagChip(): Promise<void> {
+  if (USE_NFC_STUB) {
+    await wait(STUB_DELAY_MS);
+    return;
+  }
+
+  await withNdefSession(async () => {
+    const bytes = Ndef.encodeMessage([Ndef.record(Ndef.TNF_EMPTY, "", "", [])]);
+    await NfcManager.ndefHandler.writeNdefMessage(bytes);
+  });
+}
+
 /** A short random id to write onto a newly registered tag. */
 export function generateTagToken(): string {
   return Crypto.randomUUID();
