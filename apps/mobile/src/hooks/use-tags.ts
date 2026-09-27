@@ -29,6 +29,21 @@ export function useCreateTag() {
   });
 }
 
+/**
+ * Link or unlink an arbitrary tag. The FK lives on the tag, so "give this
+ * task a tag" is really a PATCH of the tag's taskId.
+ */
+export function useSetTagTask() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ tagId, taskId }: { tagId: string; taskId: string | null }) =>
+      apiFetch<Tag>(`/tags/${tagId}`, { method: "PATCH", body: JSON.stringify({ taskId }) }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["tags"] });
+    },
+  });
+}
+
 export function useUpdateTag(id: string) {
   const queryClient = useQueryClient();
   return useMutation({

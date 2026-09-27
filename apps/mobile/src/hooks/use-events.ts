@@ -34,6 +34,34 @@ export function useEventHistory() {
   });
 }
 
+export type TaskStats = { count: number; lastAt: string };
+
+/**
+ * Per-task counts and last-logged time, derived from one page of events
+ * rather than a query per task.
+ *
+ * Caveat: only covers the most recent MAX_LIMIT (200) events, so a task with
+ * nothing recent reads as "never". Swap for a server-side aggregate if that
+ * starts to matter.
+ */
+export function useTaskStats() {
+  return useQuery({
+    queryKey: ["events", "task-stats"],
+    queryFn: async () => {
+      const rows = await apiFetch<EventWithRelations[]>("/events?limit=200");
+      const stats = new Map<string, TaskStats>();
+      // Rows come back newest first, so the first hit per task is its latest.
+      for (const row of rows) {
+        if (!row.taskId) continue;
+        const existing = stats.get(row.taskId);
+        if (existing) existing.count += 1;
+        else stats.set(row.taskId, { count: 1, lastAt: row.createdAt });
+      }
+      return stats;
+    },
+  });
+}
+
 export function useLogEvent() {
   const queryClient = useQueryClient();
   return useMutation({
