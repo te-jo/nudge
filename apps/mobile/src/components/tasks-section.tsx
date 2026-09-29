@@ -55,7 +55,9 @@ export function TasksSection() {
   }, [tasks.data, folders.data]);
 
   function confirmDeleteTask(task: Task) {
-    Alert.alert('Delete task', 'Delete this task and all its logs?', [
+    // events.task_id is ON DELETE SET NULL, so past logs survive — say so
+    // rather than promising a cascade that doesn't happen.
+    Alert.alert('Delete task', 'Delete this task? Its past logs stay, but lose the task name.', [
       { text: 'Cancel', style: 'cancel' },
       {
         text: 'Delete',
@@ -95,19 +97,20 @@ export function TasksSection() {
         <Text className="py-6 text-center text-gray-500 dark:text-gray-400">
           No tasks yet. Create one to start tracking.
         </Text>
-      ) : (
-        groups.map((group) => (
-          <FolderGroup
-            key={group.id}
-            group={group}
-            collapsed={!!collapsed[group.id]}
-            onToggle={() => setCollapsed((prev) => ({ ...prev, [group.id]: !prev[group.id] }))}
-            tagsByTask={tagsByTask}
-            stats={stats.data}
-            onTaskMenu={openTaskMenu}
-          />
-        ))
-      )}
+      ) : null}
+
+      {/* Rendered even with no tasks, so empty folders stay manageable. */}
+      {groups.map((group) => (
+        <FolderGroup
+          key={group.id}
+          group={group}
+          collapsed={!!collapsed[group.id]}
+          onToggle={() => setCollapsed((prev) => ({ ...prev, [group.id]: !prev[group.id] }))}
+          tagsByTask={tagsByTask}
+          stats={stats.data}
+          onTaskMenu={openTaskMenu}
+        />
+      ))}
 
       {creating ? (
         <TaskFormSheet key="create" visible onClose={() => setCreating(false)} />

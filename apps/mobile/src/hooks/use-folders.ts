@@ -28,6 +28,8 @@ export function useUpdateFolder(id: string) {
       apiFetch<Folder>(`/folders/${id}`, { method: "PATCH", body: JSON.stringify(input) }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["folders"] });
+      // Events carry folderName, resolved server-side, so they go stale too.
+      void queryClient.invalidateQueries({ queryKey: ["events"] });
     },
   });
 }
@@ -37,9 +39,11 @@ export function useDeleteFolder(id: string) {
   return useMutation({
     mutationFn: () => apiFetch<void>(`/folders/${id}`, { method: "DELETE" }),
     onSuccess: () => {
-      // Tasks keep existing but lose their folder, so refetch those too.
+      // Tasks keep existing but lose their folder, so refetch those too — and
+      // events, which render folderName.
       void queryClient.invalidateQueries({ queryKey: ["folders"] });
       void queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      void queryClient.invalidateQueries({ queryKey: ["events"] });
     },
   });
 }

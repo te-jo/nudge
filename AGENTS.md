@@ -99,12 +99,13 @@ For every feature:
 apps/mobile/
   src/
     app/
-      (tabs)/          Home, Tags grid, History — the tab bar
+      (tabs)/          Home, Library, Profile — the tab bar (icons only)
       tags/[id].tsx      Tag detail (view/edit/log/delete) — pushed, not a tab
       tags/register.tsx  Register a new tag (writes NFC + creates the Tag)
-    components/         Reusable UI (Screen, Button, EventRow, TaskPicker, NewTaskField)
+    components/         Reusable UI, incl. the Library sections
+                          (logs-section, tasks-section, tags-section)
     lib/                api.ts (fetch wrapper), query-client.ts, nfc.ts
-    hooks/               use-tasks.ts, use-tags.ts, use-events.ts (React Query)
+    hooks/               use-tasks.ts, use-tags.ts, use-events.ts, use-folders.ts
   metro.config.js         monorepo resolution (watchFolders/nodeModulesPaths) + NativeWind
   babel.config.js          babel-preset-expo with nativewind jsxImportSource
   tailwind.config.js
@@ -125,7 +126,7 @@ Tags are identified by an app-generated token written into the tag's NDEF data �
 - `writeTagToken(token)` — overwrites a tag's NDEF data with a token.
 - `generateTagToken()` — a fresh random token (`expo-crypto`'s `randomUUID`) for registering a new tag.
 
-Scan flow (Home screen): read → if a token comes back, resolve it via `GET /tags/uid/:token`. Found → log the event and show a confirmation that clears itself. Not found → offer to register, carrying the scanned uid through `add?uid=…` into `tags/register?uid=…`.
+Scan flow (Home screen): read → if a token comes back, resolve it via `GET /tags/uid/:token`. Found → log the event and show a confirmation that clears itself. Not found → offer to register, carrying the scanned uid through `library?view=Tags&uid=…` into `tags/register?uid=…`.
 
 `tags/register` mints a token only when it doesn't already have one: given a `uid` param it reuses that token and skips the NFC write entirely (the chip already carries it); with no param it calls `generateTagToken()` and writes. A blank tag reads back `null`, so it takes the no-param path.
 

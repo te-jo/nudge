@@ -29,9 +29,6 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, size }) => <Feather name="user" color={color} size={size} />,
         }}
       />
-
-      {/* Tag detail pushes from here, so the route stays — just not a tab. */}
-      <Tabs.Screen name="tags" options={{ href: null }} />
     </Tabs>
   );
 }

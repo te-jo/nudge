@@ -45,7 +45,9 @@ export function TaskFormSheet({
   const setTagTask = useSetTagTask();
 
   const editing = !!task;
-  const linkedTag = tags.data?.find((tag) => tag.taskId === task?.id) ?? null;
+  // A task can have several tags pointing at it, so this is a list.
+  const linkedTags = (tags.data ?? []).filter((tag) => tag.taskId === task?.id);
+  const linkedTag = linkedTags[0] ?? null;
 
   const [name, setName] = useState(task?.name ?? '');
   const [folderId, setFolderId] = useState<string | null>(task?.folderId ?? null);
@@ -56,6 +58,9 @@ export function TaskFormSheet({
   // picked something, so a save can't silently unlink an untouched tag.
   const [tagTouched, setTagTouched] = useState(false);
   const [saving, setSaving] = useState(false);
+  // Holds a folder created during a save that later failed, so retrying
+  // reuses it instead of creating another with the same name.
+  const [createdFolderId, setCreatedFolderId] = useState<string | null>(null);
 
   // Remount via `key` on the caller resets these, so no effect syncing needed.
 
@@ -76,8 +81,13 @@ export function TaskFormSheet({
       let resolvedFolderId = folderId;
       const newFolder = newFolderName.trim();
       if (newFolder) {
-        const folder = await createFolder.mutateAsync({ name: newFolder });
-        resolvedFolderId = folder.id;
+        if (createdFolderId) {
+          resolvedFolderId = createdFolderId;
+        } else {
+          const folder = await createFolder.mutateAsync({ name: newFolder });
+          setCreatedFolderId(folder.id);
+          resolvedFolderId = folder.id;
+        }
       }
 
       const saved = editing
@@ -91,12 +101,14 @@ export function TaskFormSheet({
       // the current link at save time rather than trusting what was loaded
       // when the sheet opened.
       if (tagTouched) {
-        const currentlyLinked = tags.data?.find((tag) => tag.taskId === saved.id) ?? null;
-        if (tagId !== (currentlyLinked?.id ?? null)) {
-          if (currentlyLinked) {
-            await setTagTask.mutateAsync({ tagId: currentlyLinked.id, taskId: null });
-          }
-          if (tagId) await setTagTask.mutateAsync({ tagId, taskId: saved.id });
+        const currentlyLinked = (tags.data ?? []).filter((tag) => tag.taskId === saved.id);
+        // Unlink every tag that isn't the one now selected — a task can have
+        // more than one, and "No tag" has to clear all of them.
+        for (const tag of currentlyLinked) {
+          if (tag.id !== tagId) await setTagTask.mutateAsync({ tagId: tag.id, taskId: null });
+        }
+        if (tagId && !currentlyLinked.some((tag) => tag.id === tagId)) {
+          await setTagTask.mutateAsync({ tagId, taskId: saved.id });
         }
       }
 
