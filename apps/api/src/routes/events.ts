@@ -69,6 +69,13 @@ eventsRouter.post("/", async (req, res) => {
 // when the tap actually happened.
 eventsRouter.patch("/:id", async (req, res) => {
   const input = parseBody(updateEventSchema, req.body);
+
+  // Check the task up front so a bad id is a 404 rather than an FK violation.
+  if (input.taskId) {
+    const [task] = await db.select().from(tasks).where(eq(tasks.id, input.taskId));
+    if (!task) throw new HttpError(404, "Task not found");
+  }
+
   const [row] = await db
     .update(events)
     .set(input)

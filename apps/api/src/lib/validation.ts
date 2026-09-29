@@ -41,7 +41,13 @@ export const createEventSchema = z.object({
   note: z.string().min(1).nullable().optional(),
 }) satisfies z.ZodType<CreateEventInput>;
 
-export const updateEventSchema = z.object({
-  note: z.string().min(1).nullable().optional(),
-  taskId: z.uuid().nullable().optional(),
-}) satisfies z.ZodType<UpdateEventInput>;
+// `events` has no updatedAt, so an empty patch would reach Drizzle with an
+// empty set clause and throw. Reject it as a 400 instead.
+export const updateEventSchema = z
+  .object({
+    note: z.string().min(1).nullable().optional(),
+    taskId: z.uuid().nullable().optional(),
+  })
+  .refine((value) => Object.keys(value).length > 0, {
+    message: "provide at least one field to update",
+  }) satisfies z.ZodType<UpdateEventInput>;
