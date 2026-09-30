@@ -43,7 +43,8 @@
         {
           "nfcPermission": "nudge uses NFC to read and write tags so tapping one can log an event."
         }
-      ]
+      ],
+      "expo-image"
     ],
     "experiments": {
       "typedRoutes": true,

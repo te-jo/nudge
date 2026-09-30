@@ -1,12 +1,14 @@
 import { useRef, useState } from 'react';
 import { View } from 'react-native';
 import PagerView from 'react-native-pager-view';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { RoomPage, RoomTabBar } from '@/components/room-tab-bar';
 import { ROOMS } from '@/constants/rooms';
 
 /**
+ * Pages run edge to edge, under the status bar and the tab bar, because the
+ * room backgrounds are drawn at full-screen size.
+ *
  * Rooms are pages in one pager rather than separate routes: swiping keeps
  * every page mounted, so React Query data stays cached instead of refetching
  * on each switch.
@@ -19,26 +21,31 @@ export function RoomsPager() {
   const [index, setIndex] = useState(0);
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <View className="flex-1 bg-white dark:bg-black">
-        <PagerView
-          ref={pager}
-          style={{ flex: 1 }}
-          initialPage={0}
-          onPageSelected={(event) => setIndex(event.nativeEvent.position)}>
-          {ROOMS.map((room) => (
-            <RoomPage key={room.key} label={room.label} />
-          ))}
-        </PagerView>
+    <View className="flex-1 bg-white dark:bg-black">
+      <PagerView
+        ref={pager}
+        style={{ flex: 1 }}
+        initialPage={0}
+        // onPageSelected only fires once the page settles. Tracking the
+        // scroll too makes the bar follow the swipe as it crosses halfway.
+        onPageScroll={(event) => {
+          const { position, offset } = event.nativeEvent;
+          const next = offset > 0.5 ? position + 1 : position;
+          if (next !== index && next >= 0 && next < ROOMS.length) setIndex(next);
+        }}
+        onPageSelected={(event) => setIndex(event.nativeEvent.position)}>
+        {ROOMS.map((room) => (
+          <RoomPage key={room.key} label={room.label} background={room.background} />
+        ))}
+      </PagerView>
 
-        <RoomTabBar
-          index={index}
-          onSelect={(next) => {
-            setIndex(next);
-            pager.current?.setPage(next);
-          }}
-        />
-      </View>
-    </SafeAreaView>
+      <RoomTabBar
+        index={index}
+        onSelect={(next) => {
+          setIndex(next);
+          pager.current?.setPage(next);
+        }}
+      />
+    </View>
   );
 }

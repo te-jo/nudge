@@ -1,7 +1,9 @@
 import Feather from '@expo/vector-icons/Feather';
+import { Image, type ImageSource } from 'expo-image';
 import { useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View, useWindowDimensions } from 'react-native';
 import Animated, { useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ROOMS } from '@/constants/rooms';
 
@@ -45,8 +47,13 @@ export function RoomTabBar({
   index: number;
   onSelect: (index: number) => void;
 }) {
+  const insets = useSafeAreaInsets();
+
+  // Floats over the page so the room background runs to the bottom edge.
   return (
-    <View className="flex-row border-t border-gray-100 dark:border-gray-800">
+    <View
+      className="absolute inset-x-0 bottom-0 flex-row"
+      style={{ paddingBottom: insets.bottom }}>
       {ROOMS.map((room, i) => (
         <TabIcon
           key={room.key}
@@ -60,9 +67,18 @@ export function RoomTabBar({
 }
 
 /** Placeholder page body, until each room gets real content. */
-export function RoomPage({ label }: { label: string }) {
+export function RoomPage({ label, background }: { label: string; background: ImageSource }) {
+  const insets = useSafeAreaInsets();
+  const { width, height } = useWindowDimensions();
+
   return (
-    <View className="flex-1 items-center justify-center gap-2 p-6">
+    <View className="flex-1 items-center justify-center gap-2 p-6" style={{ paddingTop: insets.top }}>
+      {/* Sized to the window, not the page, so it's always full screen height. */}
+      <Image
+        source={background}
+        contentFit="cover"
+        style={{ position: 'absolute', top: 0, left: 0, width, height }}
+      />
       <Text className="text-2xl font-bold text-black dark:text-white">{label}</Text>
       <Text className="text-center text-gray-500 dark:text-gray-400">
         Nothing here yet — swipe left or right to move between rooms.
