@@ -99,7 +99,7 @@ For every feature:
 apps/mobile/
   src/
     app/
-      (tabs)/          Home, Library, Profile — the tab bar (icons only)
+      (tabs)/index.tsx   The room pager (see "UI rebuild" below)
       tags/[id].tsx      Tag detail (view/edit/log/delete) — pushed, not a tab
       tags/register.tsx  Register a new tag (writes NFC + creates the Tag)
     components/         Reusable UI, incl. the Library sections
@@ -112,6 +112,8 @@ apps/mobile/
 ```
 
 - Scaffolded from Expo's default template (Router + TypeScript already wired); source lives under `src/`, not the repo root.
+- **UI rebuild in progress.** The shell is now a five-room swipe pager (`components/rooms-pager.tsx`, rooms listed in `constants/rooms.ts`) with placeholder pages. The previous Home/Library/Profile screens are gone from `app/`, but their content components — `logs-section`, `tasks-section`, `tags-section`, `segmented-control`, `task-form-sheet` — are deliberately kept and still compile, ready to drop into rooms. Don't delete them as dead code; the old screens are in git if you need the composition (`git show 1d73964 -- 'apps/mobile/src/app/(tabs)'`).
+- `rooms-pager.tsx` has a `.web.tsx` sibling because `react-native-pager-view` is native-only and breaks the web bundle. Keep both in step, or web CI/verification breaks.
 - The app never talks to Postgres directly — every read/write goes through `apps/api` over HTTP via `src/lib/api.ts` (`apiFetch`), which derives the dev API host from the Expo packager's own host IP so a physical device on the same network can reach a laptop running the API — `EXPO_PUBLIC_API_URL` overrides it.
 - Use React Query for all server state (fetching tags/tasks/events, mutations for logging events) — `QueryClientProvider` is already wired in `src/app/_layout.tsx`. No hand-rolled `useEffect` + `useState` fetch chains. When state needs to be derived from a query result (e.g. an editable field seeded from server data), adjust it during render (compare against a "loaded for id" flag) rather than in a `useEffect` — see `tags/[id].tsx`.
 - Keep screens thin: compose components, call hooks/React Query, delegate business logic to the API.
