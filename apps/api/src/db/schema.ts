@@ -23,6 +23,8 @@ export const tags = pgTable("tags", {
   uid: text("uid").notNull().unique(),
   label: text("label").notNull(),
   taskId: uuid("task_id").references(() => tasks.id, { onDelete: "set null" }),
+  // Unique, so a spot holds one tag. Postgres allows many NULLs.
+  spot: text("spot").unique(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });

@@ -29,6 +29,7 @@ erDiagram
         text uid UK
         text label
         uuid task_id FK "nullable"
+        text spot UK "nullable"
         timestamptz created_at "has default"
         timestamptz updated_at "has default"
     }
@@ -72,6 +73,7 @@ erDiagram
 | `uid` | `text` | unique, not null |
 | `label` | `text` | not null |
 | `task_id` | `uuid` | → tasks.id (on delete set null) |
+| `spot` | `text` | unique |
 | `created_at` | `timestamp with time zone` | not null, default |
 | `updated_at` | `timestamp with time zone` | not null, default |
 

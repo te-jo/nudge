@@ -29,11 +29,13 @@ export const createTagSchema = z.object({
   uid: z.string().min(1),
   label: z.string().min(1),
   taskId: z.uuid().nullable().optional(),
+  spot: z.string().min(1).nullable().optional(),
 }) satisfies z.ZodType<CreateTagInput>;
 
 export const updateTagSchema = z.object({
   label: z.string().min(1).optional(),
   taskId: z.uuid().nullable().optional(),
+  spot: z.string().min(1).nullable().optional(),
 }) satisfies z.ZodType<UpdateTagInput>;
 
 export const createEventSchema = z.object({

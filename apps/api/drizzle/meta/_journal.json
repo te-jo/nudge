@@ -15,6 +15,13 @@
       "when": 1790538652041,
       "tag": "0001_busy_riptide",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791495171052,
+      "tag": "0002_solid_mac_gargan",
+      "breakpoints": true
     }
   ]
 }
