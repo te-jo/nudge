@@ -73,6 +73,15 @@ For every feature:
 
 ---
 
+## Commits
+
+- Only commit when asked, after a quick review of the diff.
+- **One-line messages** — a single imperative sentence, no body. If it needs a paragraph of explanation, it probably wants splitting, and the rationale belongs in code comments, this file, or an ADR.
+- **No `Co-Authored-By` trailer**, even if a tool suggests one.
+- **Split backend and frontend** when a change spans both: `apps/api` + `packages/shared-types` (+ migrations and `docs/generated/`) in one commit, `apps/mobile` in the next.
+
+---
+
 ## packages/shared-types
 
 - Holds `Tag`, `Task`, `Event`, and their `Create*Input` / `Update*Input` variants.
