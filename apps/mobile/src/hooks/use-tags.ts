@@ -44,6 +44,19 @@ export function useSetTagTask() {
   });
 }
 
+/** Put a tag on a room spot, or take it off with `spot: null`. */
+export function useSetTagSpot() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ tagId, spot }: { tagId: string; spot: string | null }) =>
+      apiFetch<Tag>(`/tags/${tagId}`, { method: "PATCH", body: JSON.stringify({ spot }) }),
+    onSuccess: () => {
+      // Placing a tag can bump another off the spot, so refetch the list.
+      void queryClient.invalidateQueries({ queryKey: ["tags"] });
+    },
+  });
+}
+
 export function useUpdateTag(id: string) {
   const queryClient = useQueryClient();
   return useMutation({

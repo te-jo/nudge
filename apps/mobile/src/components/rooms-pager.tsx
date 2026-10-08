@@ -35,7 +35,7 @@ export function RoomsPager() {
         }}
         onPageSelected={(event) => setIndex(event.nativeEvent.position)}>
         {ROOMS.map((room) => (
-          <RoomPage key={room.key} label={room.label} background={room.background} />
+          <RoomPage key={room.key} label={room.label} background={room.background} spots={room.spots} />
         ))}
       </PagerView>
 

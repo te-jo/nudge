@@ -5,7 +5,8 @@ import { Pressable, Text, View, useWindowDimensions } from 'react-native';
 import Animated, { useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { ROOMS } from '@/constants/rooms';
+import { RoomSpots } from '@/components/room-spots';
+import { ROOMS, type RoomSpot } from '@/constants/rooms';
 
 const ACTIVE = '#2563eb';
 const INACTIVE = '#9ca3af';
@@ -66,13 +67,21 @@ export function RoomTabBar({
   );
 }
 
-/** Placeholder page body, until each room gets real content. */
-export function RoomPage({ label, background }: { label: string; background: ImageSource }) {
+/** A room: its background, its tag spots, and (for now) a placeholder title. */
+export function RoomPage({
+  label,
+  background,
+  spots,
+}: {
+  label: string;
+  background: ImageSource;
+  spots: RoomSpot[];
+}) {
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
 
   return (
-    <View className="flex-1 items-center justify-center gap-2 p-6" style={{ paddingTop: insets.top }}>
+    <View className="flex-1 items-center gap-2 bg-[#8EB6CA] p-6" style={{ paddingTop: insets.top + 24 }}>
       {/* Sized to the window, not the page, so it's always full screen height. */}
       <Image
         source={background}
@@ -80,9 +89,10 @@ export function RoomPage({ label, background }: { label: string; background: Ima
         style={{ position: 'absolute', top: 0, left: 0, width, height }}
       />
       <Text className="text-2xl font-bold text-black dark:text-white">{label}</Text>
-      <Text className="text-center text-gray-500 dark:text-gray-400">
-        Nothing here yet — swipe left or right to move between rooms.
+      <Text className="text-center text-gray-700 dark:text-gray-200">
+        Tap a yellow dot to place a tag. Long-press a tag to remove it.
       </Text>
+      <RoomSpots spots={spots} width={width} height={height} />
     </View>
   );
 }

@@ -34,7 +34,7 @@ export function RoomsPager() {
         style={{ flex: 1 }}>
         {ROOMS.map((room) => (
           <View key={room.key} style={{ width }}>
-            <RoomPage label={room.label} background={room.background} />
+            <RoomPage label={room.label} background={room.background} spots={room.spots} />
           </View>
         ))}
       </ScrollView>

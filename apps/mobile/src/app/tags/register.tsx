@@ -17,7 +17,8 @@ export default function RegisterTagScreen() {
 
   // A uid arrives when the user scanned a tag that already carries a token but
   // isn't registered. Reuse it rather than overwriting the chip.
-  const { uid: scannedUid } = useLocalSearchParams<{ uid?: string }>();
+  // A spot arrives when registering from an empty spot in a room.
+  const { uid: scannedUid, spot } = useLocalSearchParams<{ uid?: string; spot?: string }>();
 
   const [label, setLabel] = useState('');
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
@@ -42,6 +43,7 @@ export default function RegisterTagScreen() {
         uid: token,
         label: trimmedLabel,
         taskId: selectedTaskId,
+        spot: spot ?? null,
       });
       router.replace(`/tags/${tag.id}`);
     } catch (err) {
