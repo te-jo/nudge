@@ -5,6 +5,7 @@ import { Pressable, Text, View, useWindowDimensions } from 'react-native';
 import Animated, { useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { Checkerboard } from '@/components/checkerboard';
 import { RoomSpots } from '@/components/room-spots';
 import { ROOMS, type RoomSpot } from '@/constants/rooms';
 
@@ -81,8 +82,9 @@ export function RoomPage({
   const { width, height } = useWindowDimensions();
 
   return (
-    <View className="flex-1 items-center gap-2 bg-[#8EB6CA] p-6" style={{ paddingTop: insets.top + 24 }}>
-      {/* Sized to the window, not the page, so it's always full screen height. */}
+    <View className="flex-1 items-center gap-2 p-6" style={{ paddingTop: insets.top + 24 }}>
+      {/* Both sized to the window, not the page, so they're always full screen height. */}
+      <Checkerboard width={width} height={height} />
       <Image
         source={background}
         contentFit="cover"

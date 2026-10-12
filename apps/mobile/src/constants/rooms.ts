@@ -31,10 +31,10 @@ export const ROOMS: {
     background: require('@/assets/images/rooms/livingroom.svg'),
     spots: [
       { key: 'living-room.window', label: 'Window', x: 65, y: 400 },
-      { key: 'living-room.lamp', label: 'Lamp', x: 258, y: 318 },
+      { key: 'living-room.kindle', label: 'Kindle', x: 199, y: 524 },
       { key: 'living-room.plant', label: 'Plant', x: 42, y: 505 },
       { key: 'living-room.books', label: 'Books', x: 340, y: 520 },
-      { key: 'living-room.sofa', label: 'Sofa', x: 200, y: 620 },
+      { key: 'living-room.sofa', label: 'Pillow', x: 77, y: 583 },
     ],
   },
   {
@@ -43,11 +43,11 @@ export const ROOMS: {
     icon: 'book-open',
     background: require('@/assets/images/rooms/corner.svg'),
     spots: [
-      { key: 'corner.record', label: 'Record', x: 135, y: 445 },
-      { key: 'corner.guitar', label: 'Guitar', x: 72, y: 640 },
-      { key: 'corner.plant', label: 'Plant', x: 150, y: 600 },
-      { key: 'corner.tv', label: 'TV', x: 282, y: 480 },
-      { key: 'corner.cabinet', label: 'Cabinet', x: 282, y: 605 },
+      { key: 'corner.record', label: 'Record', x: 123, y: 460 },
+      { key: 'corner.guitar', label: 'Guitar', x: 60, y: 655 },
+      { key: 'corner.plant', label: 'Plant', x: 138, y: 615 },
+      { key: 'corner.tv', label: 'TV', x: 270, y: 495 },
+      { key: 'corner.cabinet', label: 'Cabinet', x: 270, y: 620 },
     ],
   },
   {
@@ -81,11 +81,9 @@ export const ROOMS: {
     icon: 'droplet',
     background: require('@/assets/images/rooms/bathroom.svg'),
     spots: [
-      { key: 'bathroom.picture-left', label: 'Left picture', x: 108, y: 345 },
-      { key: 'bathroom.picture-right', label: 'Right picture', x: 210, y: 345 },
-      { key: 'bathroom.box', label: 'Box', x: 172, y: 475 },
-      { key: 'bathroom.washer', label: 'Washing machine', x: 160, y: 610 },
-      { key: 'bathroom.basket', label: 'Laundry basket', x: 295, y: 610 },
+      { key: 'bathroom.box', label: 'Box', x: 160, y: 490 },
+      { key: 'bathroom.washer', label: 'Washing machine', x: 148, y: 625 },
+      { key: 'bathroom.basket', label: 'Laundry basket', x: 283, y: 625 },
     ],
   },
 ];
