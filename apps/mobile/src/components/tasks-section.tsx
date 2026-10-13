@@ -1,10 +1,11 @@
 import Feather from '@expo/vector-icons/Feather';
 import type { Folder, Tag, Task } from '@nudge/shared-types';
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Modal, Pressable, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, Text, TextInput, View } from 'react-native';
 
 import { Button } from '@/components/button';
 import { TaskFormSheet } from '@/components/task-form-sheet';
+import { WindowModal } from '@/components/window-modal';
 import { type TaskStats, useTaskStats } from '@/hooks/use-events';
 import { useDeleteFolder, useFolders, useUpdateFolder } from '@/hooks/use-folders';
 import { useTags } from '@/hooks/use-tags';
@@ -220,28 +221,24 @@ function FolderGroup({
         ) : null}
       </Pressable>
 
-      <Modal visible={renaming} transparent animationType="fade" onRequestClose={() => setRenaming(false)}>
-        <View style={{ flex: 1, justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.4)' }}>
-          <View className="mx-6 gap-4 rounded-xl bg-white p-4 dark:bg-gray-900">
-            <Text className="text-base font-semibold text-black dark:text-white">Rename folder</Text>
-            <TextInput
-              value={draftName}
-              onChangeText={setDraftName}
-              autoFocus
-              onSubmitEditing={saveRename}
-              className="rounded-xl border border-gray-200 px-4 py-3 text-base text-black dark:border-gray-700 dark:text-white"
-            />
-            <View className="flex-row gap-3">
-              <View className="flex-1">
-                <Button title="Cancel" variant="secondary" onPress={() => setRenaming(false)} />
-              </View>
-              <View className="flex-1">
-                <Button title="Save" onPress={saveRename} />
-              </View>
-            </View>
+      <WindowModal visible={renaming} onClose={() => setRenaming(false)}>
+        <Text className="text-base font-semibold text-black">Rename folder</Text>
+        <TextInput
+          value={draftName}
+          onChangeText={setDraftName}
+          autoFocus
+          onSubmitEditing={saveRename}
+          className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-base text-black"
+        />
+        <View className="flex-row gap-3">
+          <View className="flex-1">
+            <Button title="Cancel" variant="secondary" onPress={() => setRenaming(false)} />
+          </View>
+          <View className="flex-1">
+            <Button title="Save" onPress={saveRename} />
           </View>
         </View>
-      </Modal>
+      </WindowModal>
 
       {collapsed ? null : group.tasks.length === 0 ? (
         <Text className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">No tasks here.</Text>

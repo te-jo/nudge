@@ -1,8 +1,9 @@
 import type { EventWithRelations } from '@nudge/shared-types';
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Modal, Pressable, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, Text, TextInput, View } from 'react-native';
 
 import { Button } from '@/components/button';
+import { WindowModal } from '@/components/window-modal';
 import { useDeleteEvent, useEventHistory, useUpdateEvent } from '@/hooks/use-events';
 import { relativeTime } from '@/lib/relative-time';
 
@@ -159,34 +160,26 @@ export function LogsSection() {
         />
       ) : null}
 
-      <Modal
-        visible={!!editing}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setEditing(null)}>
-        <View style={{ flex: 1, justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.4)' }}>
-          <View className="mx-6 gap-4 rounded-xl bg-white p-4 dark:bg-gray-900">
-            <Text className="text-base font-semibold text-black dark:text-white">Note</Text>
-            <TextInput
-              value={note}
-              onChangeText={setNote}
-              placeholder="Add a note"
-              placeholderTextColor="#9ca3af"
-              autoFocus
-              onSubmitEditing={saveNote}
-              className="rounded-xl border border-gray-200 px-4 py-3 text-base text-black dark:border-gray-700 dark:text-white"
-            />
-            <View className="flex-row gap-3">
-              <View className="flex-1">
-                <Button title="Cancel" variant="secondary" onPress={() => setEditing(null)} />
-              </View>
-              <View className="flex-1">
-                <Button title="Save" onPress={saveNote} />
-              </View>
-            </View>
+      <WindowModal visible={!!editing} onClose={() => setEditing(null)}>
+        <Text className="text-base font-semibold text-black">Note</Text>
+        <TextInput
+          value={note}
+          onChangeText={setNote}
+          placeholder="Add a note"
+          placeholderTextColor="#9ca3af"
+          autoFocus
+          onSubmitEditing={saveNote}
+          className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-base text-black"
+        />
+        <View className="flex-row gap-3">
+          <View className="flex-1">
+            <Button title="Cancel" variant="secondary" onPress={() => setEditing(null)} />
+          </View>
+          <View className="flex-1">
+            <Button title="Save" onPress={saveNote} />
           </View>
         </View>
-      </Modal>
+      </WindowModal>
     </View>
   );
 }

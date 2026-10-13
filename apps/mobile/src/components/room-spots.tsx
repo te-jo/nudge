@@ -1,9 +1,10 @@
 import type { Tag } from '@nudge/shared-types';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Modal, Pressable, ScrollView, Text, View } from 'react-native';
+import { Alert, Pressable, Text, View } from 'react-native';
 
 import { Button } from '@/components/button';
+import { WindowModal } from '@/components/window-modal';
 import { ROOMS, ROOM_DESIGN_SIZE, type RoomSpot } from '@/constants/rooms';
 import { useSetTagSpot, useTags } from '@/hooks/use-tags';
 
@@ -135,38 +136,34 @@ function SpotPicker({
   onRegister: () => void;
 }) {
   return (
-    <Modal visible={!!spot} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
-      <View className="flex-1 bg-white dark:bg-black">
-        <ScrollView contentContainerClassName="gap-4 p-4">
-          <Text className="text-xl font-bold text-black dark:text-white">
-            Place a tag on the {spot?.label.toLowerCase()}
-          </Text>
+    <WindowModal visible={!!spot} onClose={onClose} scroll>
+      <Text className="text-xl font-bold text-black">
+        Place a tag on the {spot?.label.toLowerCase()}
+      </Text>
 
-          {tags.length === 0 ? (
-            <Text className="text-gray-500 dark:text-gray-400">No tags yet — register one below.</Text>
-          ) : (
-            <View className="overflow-hidden rounded-xl bg-gray-50 dark:bg-gray-900">
-              {tags.map((tag) => (
-                <Pressable
-                  key={tag.id}
-                  onPress={() => onPick(tag)}
-                  className="border-b border-gray-100 px-4 py-3 active:bg-gray-100 dark:border-gray-800 dark:active:bg-gray-800">
-                  <Text className="text-base text-black dark:text-white">{tag.label}</Text>
-                  {/* Picking a tag that's already placed moves it here. */}
-                  {tag.spot ? (
-                    <Text className="text-sm text-gray-500 dark:text-gray-400">
-                      Currently on {SPOT_LABELS.get(tag.spot) ?? tag.spot} — will move
-                    </Text>
-                  ) : null}
-                </Pressable>
-              ))}
-            </View>
-          )}
+      {tags.length === 0 ? (
+        <Text className="text-gray-500">No tags yet — register one below.</Text>
+      ) : (
+        <View className="overflow-hidden rounded-xl bg-gray-50">
+          {tags.map((tag) => (
+            <Pressable
+              key={tag.id}
+              onPress={() => onPick(tag)}
+              className="border-b border-gray-100 px-4 py-3 active:bg-gray-100">
+              <Text className="text-base text-black">{tag.label}</Text>
+              {/* Picking a tag that's already placed moves it here. */}
+              {tag.spot ? (
+                <Text className="text-sm text-gray-500">
+                  Currently on {SPOT_LABELS.get(tag.spot) ?? tag.spot} — will move
+                </Text>
+              ) : null}
+            </Pressable>
+          ))}
+        </View>
+      )}
 
-          <Button title="Register new tag" onPress={onRegister} />
-          <Button title="Cancel" variant="secondary" onPress={onClose} />
-        </ScrollView>
-      </View>
-    </Modal>
+      <Button title="Register new tag" onPress={onRegister} />
+      <Button title="Cancel" variant="secondary" onPress={onClose} />
+    </WindowModal>
   );
 }

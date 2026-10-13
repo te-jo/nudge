@@ -15,7 +15,10 @@ export default function RootLayout() {
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="tags/[id]" options={{ title: 'Tag' }} />
-          <Stack.Screen name="tags/register" options={{ title: 'New Tag' }} />
+          <Stack.Screen
+            name="tags/register"
+            options={{ presentation: 'transparentModal', animation: 'fade', headerShown: false }}
+          />
         </Stack>
       </ThemeProvider>
     </QueryClientProvider>

@@ -1,10 +1,11 @@
 import type { Tag, Task } from '@nudge/shared-types';
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Modal, Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, Text, View } from 'react-native';
 
 import { Button } from '@/components/button';
 import { TaskPicker } from '@/components/task-picker';
+import { WindowModal } from '@/components/window-modal';
 import { useDeleteTagById, useSetTagTask, useTags } from '@/hooks/use-tags';
 import { useTasks } from '@/hooks/use-tasks';
 import { wipeTagChip } from '@/lib/nfc';
@@ -144,90 +145,75 @@ export function TagsSection({ uid }: { uid?: string }) {
         </View>
       )}
 
-      <Modal
-        visible={!!menuFor}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setMenuFor(null)}>
-        <Pressable
-          onPress={() => setMenuFor(null)}
-          style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.4)' }}>
-          <View className="m-4 overflow-hidden rounded-xl bg-white dark:bg-gray-900">
-            {menuFor
-              ? (
-                  [
-                    {
-                      label: menuFor.taskId ? 'Change task' : 'Assign task',
-                      onPress: () => setAssigning(menuFor),
-                    },
-                    ...(menuFor.taskId
-                      ? [
-                          {
-                            label: 'Unassign task',
-                            onPress: () =>
-                              setTagTask.mutate(
-                                { tagId: menuFor.id, taskId: null },
-                                { onError: (err) => alertError("Couldn't unassign task", err) },
-                              ),
-                          },
-                        ]
-                      : []),
-                    { label: 'Open details', onPress: () => router.push(`/tags/${menuFor.id}`) },
-                    { label: 'Wipe chip', destructive: true, onPress: () => confirmWipe(menuFor) },
-                    { label: 'Delete tag', destructive: true, onPress: () => confirmDelete(menuFor) },
-                  ] as { label: string; destructive?: boolean; onPress: () => void }[]
-                ).map((action) => (
-                  <Pressable
-                    key={action.label}
-                    onPress={() => {
-                      setMenuFor(null);
-                      action.onPress();
-                    }}
-                    className="border-b border-gray-100 px-4 py-4 active:bg-gray-50 dark:border-gray-800 dark:active:bg-gray-800">
-                    <Text
-                      className={
-                        action.destructive ? 'text-red-600' : 'text-black dark:text-white'
-                      }>
-                      {action.label}
-                    </Text>
-                  </Pressable>
-                ))
-              : null}
-            <Pressable onPress={() => setMenuFor(null)} className="px-4 py-4">
-              <Text className="text-gray-500 dark:text-gray-400">Cancel</Text>
-            </Pressable>
-          </View>
-        </Pressable>
-      </Modal>
-
-      <Modal
-        visible={!!assigning}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setAssigning(null)}>
-        <View style={{ flex: 1, justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.4)' }}>
-          <View className="mx-6 gap-4 rounded-xl bg-white p-4 dark:bg-gray-900">
-            <Text className="text-base font-semibold text-black dark:text-white">
-              Task for {assigning?.label}
-            </Text>
-            <TaskPicker
-              tasks={tasks.data ?? []}
-              selectedTaskId={assigning?.taskId ?? null}
-              onSelect={(taskId) => {
-                if (!assigning) return;
-                setTagTask.mutate(
-                  { tagId: assigning.id, taskId },
+      <WindowModal visible={!!menuFor} onClose={() => setMenuFor(null)}>
+        <Text className="text-base font-semibold text-black">{menuFor?.label}</Text>
+        <View className="overflow-hidden rounded-xl bg-white">
+          {menuFor
+            ? (
+                [
                   {
-                    onSuccess: () => setAssigning(null),
-                    onError: (err) => alertError("Couldn't assign task", err),
+                    label: menuFor.taskId ? 'Change task' : 'Assign task',
+                    onPress: () => setAssigning(menuFor),
                   },
-                );
-              }}
-            />
-            <Button title="Close" variant="secondary" onPress={() => setAssigning(null)} />
-          </View>
+                  ...(menuFor.taskId
+                    ? [
+                        {
+                          label: 'Unassign task',
+                          onPress: () =>
+                            setTagTask.mutate(
+                              { tagId: menuFor.id, taskId: null },
+                              { onError: (err) => alertError("Couldn't unassign task", err) },
+                            ),
+                        },
+                      ]
+                    : []),
+                  { label: 'Open details', onPress: () => router.push(`/tags/${menuFor.id}`) },
+                  { label: 'Wipe chip', destructive: true, onPress: () => confirmWipe(menuFor) },
+                  { label: 'Delete tag', destructive: true, onPress: () => confirmDelete(menuFor) },
+                ] as { label: string; destructive?: boolean; onPress: () => void }[]
+              ).map((action) => (
+                <Pressable
+                  key={action.label}
+                  onPress={() => {
+                    setMenuFor(null);
+                    action.onPress();
+                  }}
+                  className="border-b border-gray-100 px-4 py-4 active:bg-gray-50">
+                  <Text
+                    className={
+                      action.destructive ? 'text-red-600' : 'text-black'
+                    }>
+                    {action.label}
+                  </Text>
+                </Pressable>
+              ))
+            : null}
+          <Pressable onPress={() => setMenuFor(null)} className="px-4 py-4">
+            <Text className="text-gray-500">Cancel</Text>
+          </Pressable>
         </View>
-      </Modal>
+      </WindowModal>
+
+      <WindowModal visible={!!assigning} onClose={() => setAssigning(null)} scroll>
+        <Text className="text-base font-semibold text-black">
+          Task for {assigning?.label}
+        </Text>
+        <TaskPicker
+          tasks={tasks.data ?? []}
+          selectedTaskId={assigning?.taskId ?? null}
+          onSelect={(taskId) => {
+            if (!assigning) return;
+            setTagTask.mutate(
+              { tagId: assigning.id, taskId },
+              {
+                onSuccess: () => setAssigning(null),
+                onError: (err) => alertError("Couldn't assign task", err),
+              },
+            );
+          }}
+        />
+        <Button title="Close" variant="secondary" onPress={() => setAssigning(null)} />
+      </WindowModal>
     </View>
   );
 }

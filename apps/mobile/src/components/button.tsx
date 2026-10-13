@@ -1,5 +1,7 @@
 import { Pressable, Text, type PressableProps } from "react-native";
 
+import { useOnCream } from "@/components/window-modal";
+
 type Variant = "primary" | "secondary" | "destructive";
 
 const VARIANT_STYLES: Record<Variant, { container: string; text: string }> = {
@@ -11,13 +13,17 @@ const VARIANT_STYLES: Record<Variant, { container: string; text: string }> = {
   destructive: { container: "bg-red-600 active:bg-red-700", text: "text-white" },
 };
 
+// Window cards are cream in both colour schemes, so secondary goes light-only there.
+const SECONDARY_ON_CREAM = { container: "bg-white/70 active:bg-white", text: "text-black" };
+
 export function Button({
   title,
   variant = "primary",
   disabled,
   ...props
 }: PressableProps & { title: string; variant?: Variant }) {
-  const styles = VARIANT_STYLES[variant];
+  const onCream = useOnCream();
+  const styles = onCream && variant === "secondary" ? SECONDARY_ON_CREAM : VARIANT_STYLES[variant];
   return (
     <Pressable
       disabled={disabled}

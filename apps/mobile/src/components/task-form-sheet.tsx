@@ -1,8 +1,9 @@
 import type { Folder, Tag, Task } from '@nudge/shared-types';
 import { useState } from 'react';
-import { Alert, Modal, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { Alert, Pressable, Text, TextInput, View } from 'react-native';
 
 import { Button } from '@/components/button';
+import { WindowModal } from '@/components/window-modal';
 import { useCreateFolder, useFolders } from '@/hooks/use-folders';
 import { useSetTagTask, useTags } from '@/hooks/use-tags';
 import { useCreateTask, useUpdateTask } from '@/hooks/use-tasks';
@@ -20,9 +21,9 @@ function Chip({
     <Pressable
       onPress={onPress}
       className={`rounded-full border px-3 py-2 ${
-        selected ? 'border-blue-600 bg-blue-600' : 'border-gray-200 dark:border-gray-700'
+        selected ? 'border-blue-600 bg-blue-600' : 'border-gray-300'
       }`}>
-      <Text className={selected ? 'text-white' : 'text-black dark:text-white'}>{label}</Text>
+      <Text className={selected ? 'text-white' : 'text-black'}>{label}</Text>
     </Pressable>
   );
 }
@@ -124,86 +125,83 @@ export function TaskFormSheet({
   }
 
   return (
-    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
-      <View style={{ flex: 1 }} className="bg-white dark:bg-black">
-        <View className="flex-row items-center justify-between border-b border-gray-100 p-4 dark:border-gray-800">
-          <Pressable onPress={onClose}>
-            <Text className="text-blue-600">Cancel</Text>
-          </Pressable>
-          <Text className="text-base font-semibold text-black dark:text-white">
-            {editing ? 'Edit Task' : 'New Task'}
-          </Text>
-          <View style={{ width: 52 }} />
-        </View>
+    <WindowModal visible={visible} onClose={onClose} scroll>
+      <Text className="text-xl font-bold text-black">
+        {editing ? 'Edit Task' : 'New Task'}
+      </Text>
 
-        <ScrollView contentContainerClassName="gap-6 p-4" keyboardShouldPersistTaps="handled">
-          <View className="gap-2">
-            <Text className="text-base font-semibold text-black dark:text-white">Name</Text>
-            <TextInput
-              value={name}
-              onChangeText={setName}
-              placeholder="e.g. Take vitamins"
-              placeholderTextColor="#9ca3af"
-              autoFocus={!editing}
-              className="rounded-xl border border-gray-200 px-4 py-3 text-base text-black dark:border-gray-700 dark:text-white"
-            />
-          </View>
-
-          <View className="gap-2">
-            <Text className="text-base font-semibold text-black dark:text-white">Folder</Text>
-            <View className="flex-row flex-wrap gap-2">
-              <Chip
-                label="Other"
-                selected={folderId === null && !newFolderName.trim()}
-                onPress={() => {
-                  setFolderId(null);
-                  setNewFolderName('');
-                }}
-              />
-              {(folders.data ?? []).map((folder: Folder) => (
-                <Chip
-                  key={folder.id}
-                  label={folder.name}
-                  selected={folderId === folder.id && !newFolderName.trim()}
-                  onPress={() => {
-                    setFolderId(folder.id);
-                    setNewFolderName('');
-                  }}
-                />
-              ))}
-            </View>
-            <TextInput
-              value={newFolderName}
-              onChangeText={setNewFolderName}
-              placeholder="…or type a new folder name"
-              placeholderTextColor="#9ca3af"
-              className="rounded-xl border border-gray-200 px-4 py-3 text-base text-black dark:border-gray-700 dark:text-white"
-            />
-          </View>
-
-          <View className="gap-2">
-            <Text className="text-base font-semibold text-black dark:text-white">Tag</Text>
-            <View className="flex-row flex-wrap gap-2">
-              <Chip label="No tag" selected={tagId === null} onPress={() => chooseTag(null)} />
-              {(tags.data ?? [])
-                .filter((tag: Tag) => !tag.taskId || tag.taskId === task?.id)
-                .map((tag: Tag) => (
-                  <Chip
-                    key={tag.id}
-                    label={tag.label}
-                    selected={tagId === tag.id}
-                    onPress={() => chooseTag(tag.id)}
-                  />
-                ))}
-            </View>
-            <Text className="text-sm text-gray-500 dark:text-gray-400">
-              Only unassigned tags are listed — a tag points at one task at a time.
-            </Text>
-          </View>
-
-          <Button title={saving ? 'Saving…' : 'Save'} onPress={handleSave} disabled={saving} />
-        </ScrollView>
+      <View className="gap-2">
+        <Text className="text-base font-semibold text-black">Name</Text>
+        <TextInput
+          value={name}
+          onChangeText={setName}
+          placeholder="e.g. Take vitamins"
+          placeholderTextColor="#9ca3af"
+          autoFocus={!editing}
+          className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-base text-black"
+        />
       </View>
-    </Modal>
+
+      <View className="gap-2">
+        <Text className="text-base font-semibold text-black">Folder</Text>
+        <View className="flex-row flex-wrap gap-2">
+          <Chip
+            label="Other"
+            selected={folderId === null && !newFolderName.trim()}
+            onPress={() => {
+              setFolderId(null);
+              setNewFolderName('');
+            }}
+          />
+          {(folders.data ?? []).map((folder: Folder) => (
+            <Chip
+              key={folder.id}
+              label={folder.name}
+              selected={folderId === folder.id && !newFolderName.trim()}
+              onPress={() => {
+                setFolderId(folder.id);
+                setNewFolderName('');
+              }}
+            />
+          ))}
+        </View>
+        <TextInput
+          value={newFolderName}
+          onChangeText={setNewFolderName}
+          placeholder="…or type a new folder name"
+          placeholderTextColor="#9ca3af"
+          className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-base text-black"
+        />
+      </View>
+
+      <View className="gap-2">
+        <Text className="text-base font-semibold text-black">Tag</Text>
+        <View className="flex-row flex-wrap gap-2">
+          <Chip label="No tag" selected={tagId === null} onPress={() => chooseTag(null)} />
+          {(tags.data ?? [])
+            .filter((tag: Tag) => !tag.taskId || tag.taskId === task?.id)
+            .map((tag: Tag) => (
+              <Chip
+                key={tag.id}
+                label={tag.label}
+                selected={tagId === tag.id}
+                onPress={() => chooseTag(tag.id)}
+              />
+            ))}
+        </View>
+        <Text className="text-sm text-gray-500">
+          Only unassigned tags are listed — a tag points at one task at a time.
+        </Text>
+      </View>
+
+      <View className="flex-row gap-3">
+        <View className="flex-1">
+          <Button title="Cancel" variant="secondary" onPress={onClose} />
+        </View>
+        <View className="flex-1">
+          <Button title={saving ? 'Saving…' : 'Save'} onPress={handleSave} disabled={saving} />
+        </View>
+      </View>
+    </WindowModal>
   );
 }
