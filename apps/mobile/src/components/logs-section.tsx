@@ -130,7 +130,7 @@ export function LogsSection() {
                 onLongPress={() => openMenu(event)}
                 className="flex-row items-center justify-between border-b border-gray-100 px-4 py-3 last:border-b-0 active:bg-gray-50 dark:border-gray-800 dark:active:bg-gray-900">
                 <View className="flex-1 pr-3">
-                  <Text className="text-base text-black dark:text-white" numberOfLines={1}>
+                  <Text className="text-base text-ink dark:text-white" numberOfLines={1}>
                     {event.taskName ?? 'No task'}
                   </Text>
                   <Text
@@ -161,7 +161,7 @@ export function LogsSection() {
       ) : null}
 
       <WindowModal visible={!!editing} onClose={() => setEditing(null)}>
-        <Text className="text-base font-semibold text-black">Note</Text>
+        <Text className="text-base font-semibold text-ink">Note</Text>
         <TextInput
           value={note}
           onChangeText={setNote}
@@ -169,7 +169,7 @@ export function LogsSection() {
           placeholderTextColor="#9ca3af"
           autoFocus
           onSubmitEditing={saveNote}
-          className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-base text-black"
+          className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-base text-ink"
         />
         <View className="flex-row gap-3">
           <View className="flex-1">

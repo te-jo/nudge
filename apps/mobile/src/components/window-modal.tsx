@@ -6,7 +6,9 @@ const OnCreamContext = createContext(false);
 
 /**
  * True inside a window card. The card is cream in both colour schemes, so
- * shared components (Button, TaskPicker…) use it to skip their `dark:` styles.
+ * shared components that also appear on plain screens (Button, TaskPicker,
+ * NewTaskField) use it
+ * to skip their `dark:` styles.
  */
 export function useOnCream() {
   return useContext(OnCreamContext);
@@ -44,7 +46,7 @@ export function WindowCard({
           {/* A plain Pressable here swallows taps so they don't reach the backdrop. */}
           <Pressable
             onPress={() => {}}
-            className="mx-6 overflow-hidden rounded-[22px] bg-[#F5EBDD]"
+            className="mx-6 overflow-hidden rounded-[22px] bg-cream"
             style={{ maxHeight: '85%' }}>
             <View className="h-12 flex-row items-center gap-2 border-b-4 border-white px-4">
               <Pressable

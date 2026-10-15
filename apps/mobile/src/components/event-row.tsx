@@ -9,7 +9,7 @@ export function EventRow({ event }: { event: EventWithRelations }) {
   return (
     <View className="flex-row items-center justify-between border-b border-gray-100 px-4 py-3 dark:border-gray-800">
       <View className="flex-1 pr-3">
-        <Text className="text-base font-medium text-black dark:text-white" numberOfLines={1}>
+        <Text className="text-base font-medium text-ink dark:text-white" numberOfLines={1}>
           {event.taskName ?? 'No task'}
         </Text>
         {subtitle ? (

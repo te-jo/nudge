@@ -89,7 +89,7 @@ export function RoomSpots({
               <View pointerEvents="none" className="absolute items-center" style={{ top: DOT, width: 120 }}>
                 <Text
                   numberOfLines={1}
-                  className="rounded-md bg-white/85 px-1.5 py-0.5 text-xs font-medium text-black">
+                  className="rounded-md bg-white/85 px-1.5 py-0.5 text-xs font-medium text-ink">
                   {tag.label}
                 </Text>
               </View>
@@ -137,7 +137,7 @@ function SpotPicker({
 }) {
   return (
     <WindowModal visible={!!spot} onClose={onClose} scroll>
-      <Text className="text-xl font-bold text-black">
+      <Text className="text-xl font-bold text-ink">
         Place a tag on the {spot?.label.toLowerCase()}
       </Text>
 
@@ -150,7 +150,7 @@ function SpotPicker({
               key={tag.id}
               onPress={() => onPick(tag)}
               className="border-b border-gray-100 px-4 py-3 active:bg-gray-100">
-              <Text className="text-base text-black">{tag.label}</Text>
+              <Text className="text-base text-ink">{tag.label}</Text>
               {/* Picking a tag that's already placed moves it here. */}
               {tag.spot ? (
                 <Text className="text-sm text-gray-500">

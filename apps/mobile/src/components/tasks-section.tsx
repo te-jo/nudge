@@ -210,7 +210,7 @@ function FolderGroup({
         className="flex-row items-center justify-between bg-gray-50 px-4 py-3 dark:bg-gray-900">
         <View className="flex-row items-center gap-2">
           <Feather name={collapsed ? 'chevron-right' : 'chevron-down'} size={16} color="#6b7280" />
-          <Text className="text-base font-semibold text-black dark:text-white">{group.name}</Text>
+          <Text className="text-base font-semibold text-ink dark:text-white">{group.name}</Text>
           <Text className="text-sm text-gray-500 dark:text-gray-400">{group.tasks.length}</Text>
         </View>
 
@@ -222,13 +222,13 @@ function FolderGroup({
       </Pressable>
 
       <WindowModal visible={renaming} onClose={() => setRenaming(false)}>
-        <Text className="text-base font-semibold text-black">Rename folder</Text>
+        <Text className="text-base font-semibold text-ink">Rename folder</Text>
         <TextInput
           value={draftName}
           onChangeText={setDraftName}
           autoFocus
           onSubmitEditing={saveRename}
-          className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-base text-black"
+          className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-base text-ink"
         />
         <View className="flex-row gap-3">
           <View className="flex-1">
@@ -274,7 +274,7 @@ function TaskRow({
       onLongPress={onMenu}
       className="flex-row items-center justify-between border-t border-gray-100 px-4 py-3 active:bg-gray-50 dark:border-gray-800 dark:active:bg-gray-900">
       <View className="flex-1 pr-3">
-        <Text className="text-base text-black dark:text-white" numberOfLines={1}>
+        <Text className="text-base text-ink dark:text-white" numberOfLines={1}>
           {task.name}
         </Text>
         {tags.length > 0 ? (

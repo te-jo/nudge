@@ -26,8 +26,12 @@ export function NewTaskField({ onCreated }: { onCreated: (taskId: string) => voi
 
   if (!adding) {
     return (
-      <Pressable onPress={() => setAdding(true)}>
-        <Text className="font-medium text-blue-600">+ New task</Text>
+      <Pressable
+        onPress={() => setAdding(true)}
+        className={`self-start rounded-full border border-dashed px-3 py-2 active:bg-ink/10 ${
+          onCream ? 'border-ink' : 'border-ink dark:border-white'
+        }`}>
+        <Text className={`font-medium text-ink ${onCream ? '' : 'dark:text-white'}`}>+ New task</Text>
       </Pressable>
     );
   }
@@ -41,7 +45,7 @@ export function NewTaskField({ onCreated }: { onCreated: (taskId: string) => voi
         placeholderTextColor="#9ca3af"
         autoFocus
         onSubmitEditing={handleCreate}
-        className={`flex-1 rounded-xl border px-4 py-3 text-base text-black ${
+        className={`flex-1 rounded-xl border px-4 py-3 text-base text-ink ${
           onCream ? 'border-gray-300 bg-white' : 'border-gray-200 dark:border-gray-700 dark:text-white'
         }`}
       />

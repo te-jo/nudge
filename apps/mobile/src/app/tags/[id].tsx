@@ -75,12 +75,12 @@ export default function TagDetailScreen() {
       <Stack.Screen options={{ title: tag.label }} />
       <ScrollView contentContainerClassName="gap-6 p-4" keyboardShouldPersistTaps="handled">
         <View className="gap-2">
-          <Text className="text-base font-semibold text-black dark:text-white">Label</Text>
+          <Text className="text-base font-semibold text-ink dark:text-white">Label</Text>
           <View className="flex-row items-center gap-2">
             <TextInput
               value={label}
               onChangeText={setLabel}
-              className="flex-1 rounded-xl border border-gray-200 px-4 py-3 text-base text-black dark:border-gray-700 dark:text-white"
+              className="flex-1 rounded-xl border border-gray-200 px-4 py-3 text-base text-ink dark:border-gray-700 dark:text-white"
             />
             {labelChanged ? (
               <Button
@@ -98,7 +98,7 @@ export default function TagDetailScreen() {
         </View>
 
         <View className="gap-2">
-          <Text className="text-base font-semibold text-black dark:text-white">Task</Text>
+          <Text className="text-base font-semibold text-ink dark:text-white">Task</Text>
           <TaskPicker
             tasks={tasksQuery.data ?? []}
             selectedTaskId={tag.taskId}
@@ -120,7 +120,7 @@ export default function TagDetailScreen() {
         />
 
         <View>
-          <Text className="mb-2 text-lg font-semibold text-black dark:text-white">Recent events</Text>
+          <Text className="mb-2 text-lg font-semibold text-ink dark:text-white">Recent events</Text>
           {eventsQuery.isLoading ? (
             <ActivityIndicator />
           ) : eventsQuery.data && eventsQuery.data.length > 0 ? (

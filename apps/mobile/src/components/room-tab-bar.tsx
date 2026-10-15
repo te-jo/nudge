@@ -90,7 +90,7 @@ export function RoomPage({
         contentFit="cover"
         style={{ position: 'absolute', top: 0, left: 0, width, height }}
       />
-      <Text className="text-2xl font-bold text-black dark:text-white">{label}</Text>
+      <Text className="text-2xl font-bold text-ink dark:text-white">{label}</Text>
       <Text className="text-center text-gray-700 dark:text-gray-200">
         Tap a yellow dot to place a tag. Long-press a tag to remove it.
       </Text>

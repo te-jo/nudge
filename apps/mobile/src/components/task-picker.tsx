@@ -3,6 +3,7 @@ import { Pressable, Text, View } from 'react-native';
 
 import { useOnCream } from '@/components/window-modal';
 
+/** Task chips: dark gray outline, and filled light gray for the selected one. */
 export function TaskPicker({
   tasks,
   selectedTaskId,
@@ -12,18 +13,21 @@ export function TaskPicker({
   selectedTaskId: string | null;
   onSelect: (taskId: string | null) => void;
 }) {
+  // Outlined chips show what's behind them: cream in a window, else the screen.
   const onCream = useOnCream();
-  const idleBorder = onCream ? 'border-gray-300' : 'border-gray-200 dark:border-gray-700';
-  const idleText = onCream ? 'text-black' : 'text-black dark:text-white';
+  const chip = (selected: boolean) =>
+    `rounded-full border-2 px-3 py-2 ${
+      selected ? 'border-mist bg-mist' : onCream ? 'border-ink' : 'border-ink dark:border-white'
+    }`;
+  const label = (selected: boolean) =>
+    selected ? 'font-semibold text-ink' : onCream ? 'text-ink' : 'text-ink dark:text-white';
 
   return (
     <View className="flex-row flex-wrap gap-2">
       <Pressable
         onPress={() => onSelect(null)}
-        className={`rounded-full border px-3 py-2 ${
-          selectedTaskId === null ? 'border-blue-600 bg-blue-600' : idleBorder
-        }`}>
-        <Text className={selectedTaskId === null ? 'text-white' : idleText}>
+        className={chip(selectedTaskId === null)}>
+        <Text className={label(selectedTaskId === null)}>
           Unassigned
         </Text>
       </Pressable>
@@ -31,10 +35,8 @@ export function TaskPicker({
         <Pressable
           key={task.id}
           onPress={() => onSelect(task.id)}
-          className={`rounded-full border px-3 py-2 ${
-            selectedTaskId === task.id ? 'border-blue-600 bg-blue-600' : idleBorder
-          }`}>
-          <Text className={selectedTaskId === task.id ? 'text-white' : idleText}>
+          className={chip(selectedTaskId === task.id)}>
+          <Text className={label(selectedTaskId === task.id)}>
             {task.name}
           </Text>
         </Pressable>

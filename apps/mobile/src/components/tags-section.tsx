@@ -91,7 +91,7 @@ export function TagsSection({ uid }: { uid?: string }) {
       {pendingUid ? (
         <View className="gap-1 rounded-xl border border-gray-200 p-4 dark:border-gray-700">
           <Text className="text-sm text-gray-500 dark:text-gray-400">Scanned tag, not registered</Text>
-          <Text className="text-base text-black dark:text-white" numberOfLines={1}>
+          <Text className="text-base text-ink dark:text-white" numberOfLines={1}>
             {pendingUid}
           </Text>
         </View>
@@ -111,7 +111,7 @@ export function TagsSection({ uid }: { uid?: string }) {
       {wiping ? (
         <View className="flex-row items-center justify-center gap-2 rounded-xl border border-gray-200 p-3 dark:border-gray-700">
           <ActivityIndicator />
-          <Text className="text-black dark:text-white">Hold the tag to your phone…</Text>
+          <Text className="text-ink dark:text-white">Hold the tag to your phone…</Text>
         </View>
       ) : null}
 
@@ -129,7 +129,7 @@ export function TagsSection({ uid }: { uid?: string }) {
                 onPress={() => openMenu(tag)}
                 onLongPress={() => openMenu(tag)}
                 className="border-b border-gray-100 px-4 py-3 active:bg-gray-50 dark:border-gray-800 dark:active:bg-gray-900">
-                <Text className="text-base text-black dark:text-white" numberOfLines={1}>
+                <Text className="text-base text-ink dark:text-white" numberOfLines={1}>
                   {tag.label}
                 </Text>
                 {linked ? (
@@ -146,7 +146,7 @@ export function TagsSection({ uid }: { uid?: string }) {
       )}
 
       <WindowModal visible={!!menuFor} onClose={() => setMenuFor(null)}>
-        <Text className="text-base font-semibold text-black">{menuFor?.label}</Text>
+        <Text className="text-base font-semibold text-ink">{menuFor?.label}</Text>
         <View className="overflow-hidden rounded-xl bg-white">
           {menuFor
             ? (
@@ -181,7 +181,7 @@ export function TagsSection({ uid }: { uid?: string }) {
                   className="border-b border-gray-100 px-4 py-4 active:bg-gray-50">
                   <Text
                     className={
-                      action.destructive ? 'text-red-600' : 'text-black'
+                      action.destructive ? 'text-red-600' : 'text-ink'
                     }>
                     {action.label}
                   </Text>
@@ -195,7 +195,7 @@ export function TagsSection({ uid }: { uid?: string }) {
       </WindowModal>
 
       <WindowModal visible={!!assigning} onClose={() => setAssigning(null)} scroll>
-        <Text className="text-base font-semibold text-black">
+        <Text className="text-base font-semibold text-ink">
           Task for {assigning?.label}
         </Text>
         <TaskPicker

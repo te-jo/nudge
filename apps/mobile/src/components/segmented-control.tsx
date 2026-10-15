@@ -23,7 +23,7 @@ export function SegmentedControl<T extends string>({
             <Text
               className={
                 selected
-                  ? 'font-semibold text-black dark:text-white'
+                  ? 'font-semibold text-ink dark:text-white'
                   : 'text-gray-500 dark:text-gray-400'
               }>
               {segment}

@@ -20,10 +20,8 @@ function Chip({
   return (
     <Pressable
       onPress={onPress}
-      className={`rounded-full border px-3 py-2 ${
-        selected ? 'border-blue-600 bg-blue-600' : 'border-gray-300'
-      }`}>
-      <Text className={selected ? 'text-white' : 'text-black'}>{label}</Text>
+      className={`rounded-full border-2 px-3 py-2 ${selected ? 'border-mist bg-mist' : 'border-ink'}`}>
+      <Text className={`text-ink ${selected ? 'font-semibold' : ''}`}>{label}</Text>
     </Pressable>
   );
 }
@@ -126,24 +124,24 @@ export function TaskFormSheet({
 
   return (
     <WindowModal visible={visible} onClose={onClose} scroll>
-      <Text className="text-xl font-bold text-black">
+      <Text className="text-xl font-bold text-ink">
         {editing ? 'Edit Task' : 'New Task'}
       </Text>
 
       <View className="gap-2">
-        <Text className="text-base font-semibold text-black">Name</Text>
+        <Text className="text-base font-semibold text-ink">Name</Text>
         <TextInput
           value={name}
           onChangeText={setName}
           placeholder="e.g. Take vitamins"
           placeholderTextColor="#9ca3af"
           autoFocus={!editing}
-          className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-base text-black"
+          className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-base text-ink"
         />
       </View>
 
       <View className="gap-2">
-        <Text className="text-base font-semibold text-black">Folder</Text>
+        <Text className="text-base font-semibold text-ink">Folder</Text>
         <View className="flex-row flex-wrap gap-2">
           <Chip
             label="Other"
@@ -170,12 +168,12 @@ export function TaskFormSheet({
           onChangeText={setNewFolderName}
           placeholder="…or type a new folder name"
           placeholderTextColor="#9ca3af"
-          className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-base text-black"
+          className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-base text-ink"
         />
       </View>
 
       <View className="gap-2">
-        <Text className="text-base font-semibold text-black">Tag</Text>
+        <Text className="text-base font-semibold text-ink">Tag</Text>
         <View className="flex-row flex-wrap gap-2">
           <Chip label="No tag" selected={tagId === null} onPress={() => chooseTag(null)} />
           {(tags.data ?? [])

@@ -56,21 +56,21 @@ export default function RegisterTagScreen() {
 
   return (
     <WindowCard onClose={() => router.back()} scroll>
-      <Text className="text-xl font-bold text-black">New Tag</Text>
+      <Text className="text-xl font-bold text-ink">New Tag</Text>
 
       <View className="gap-2">
-        <Text className="text-base font-semibold text-black">Label</Text>
+        <Text className="text-base font-semibold text-ink">Label</Text>
         <TextInput
           value={label}
           onChangeText={setLabel}
           placeholder="e.g. Desk"
           placeholderTextColor="#9ca3af"
-          className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-base text-black"
+          className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-base text-ink"
         />
       </View>
 
       <View className="gap-2">
-        <Text className="text-base font-semibold text-black">Task</Text>
+        <Text className="text-base font-semibold text-ink">Task</Text>
         <TaskPicker tasks={tasks.data ?? []} selectedTaskId={selectedTaskId} onSelect={setSelectedTaskId} />
         <NewTaskField onCreated={setSelectedTaskId} />
       </View>
