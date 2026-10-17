@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, Text, View } from 'react-native';
 
 import { Button } from '@/components/button';
-import { TaskPicker } from '@/components/task-picker';
+import { TaskField, useResolveTask } from '@/components/task-field';
 import { WindowModal } from '@/components/window-modal';
 import { useDeleteTagById, useSetTagTask, useTags } from '@/hooks/use-tags';
 import { useTasks } from '@/hooks/use-tasks';
@@ -20,8 +20,12 @@ export function TagsSection({ uid }: { uid?: string }) {
   const tasks = useTasks();
   const setTagTask = useSetTagTask();
   const deleteTag = useDeleteTagById();
+  const resolveTask = useResolveTask();
 
   const [assigning, setAssigning] = useState<Tag | null>(null);
+  // null until typed into, so the field starts on the tag's current task.
+  const [taskDraft, setTaskDraft] = useState<string | null>(null);
+  const [savingTask, setSavingTask] = useState(false);
   const [menuFor, setMenuFor] = useState<Tag | null>(null);
   const [wiping, setWiping] = useState(false);
 
@@ -30,6 +34,26 @@ export function TagsSection({ uid }: { uid?: string }) {
     for (const task of tasks.data ?? []) map.set(task.id, task);
     return map;
   }, [tasks.data]);
+
+  function openAssign(tag: Tag) {
+    setTaskDraft(null);
+    setAssigning(tag);
+  }
+
+  async function saveAssign() {
+    if (!assigning) return;
+    setSavingTask(true);
+    try {
+      const name = taskDraft ?? taskById.get(assigning.taskId ?? '')?.name ?? '';
+      const taskId = await resolveTask(name);
+      await setTagTask.mutateAsync({ tagId: assigning.id, taskId });
+      setAssigning(null);
+    } catch (err) {
+      alertError("Couldn't assign task", err);
+    } finally {
+      setSavingTask(false);
+    }
+  }
 
   function confirmDelete(tag: Tag) {
     Alert.alert('Delete tag', `Delete "${tag.label}" and its logs?`, [
@@ -153,7 +177,7 @@ export function TagsSection({ uid }: { uid?: string }) {
                 [
                   {
                     label: menuFor.taskId ? 'Change task' : 'Assign task',
-                    onPress: () => setAssigning(menuFor),
+                    onPress: () => openAssign(menuFor),
                   },
                   ...(menuFor.taskId
                     ? [
@@ -198,21 +222,23 @@ export function TagsSection({ uid }: { uid?: string }) {
         <Text className="text-base font-semibold text-ink">
           Task for {assigning?.label}
         </Text>
-        <TaskPicker
+        <TaskField
+          value={taskDraft ?? taskById.get(assigning?.taskId ?? '')?.name ?? ''}
+          onChangeText={setTaskDraft}
           tasks={tasks.data ?? []}
-          selectedTaskId={assigning?.taskId ?? null}
-          onSelect={(taskId) => {
-            if (!assigning) return;
-            setTagTask.mutate(
-              { tagId: assigning.id, taskId },
-              {
-                onSuccess: () => setAssigning(null),
-                onError: (err) => alertError("Couldn't assign task", err),
-              },
-            );
-          }}
         />
-        <Button title="Close" variant="secondary" onPress={() => setAssigning(null)} />
+        <View className="flex-row gap-3">
+          <View className="flex-1">
+            <Button title="Cancel" variant="secondary" onPress={() => setAssigning(null)} />
+          </View>
+          <View className="flex-1">
+            <Button
+              title={savingTask ? 'Saving…' : 'Save'}
+              onPress={() => void saveAssign()}
+              disabled={savingTask}
+            />
+          </View>
+        </View>
       </WindowModal>
     </View>
   );

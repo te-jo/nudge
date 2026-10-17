@@ -3,8 +3,7 @@ import { useState } from 'react';
 import { ActivityIndicator, Alert, Text, TextInput, View } from 'react-native';
 
 import { Button } from '@/components/button';
-import { NewTaskField } from '@/components/new-task-field';
-import { TaskPicker } from '@/components/task-picker';
+import { TaskField, useResolveTask } from '@/components/task-field';
 import { WindowCard } from '@/components/window-modal';
 import { useCreateTag } from '@/hooks/use-tags';
 import { useTasks } from '@/hooks/use-tasks';
@@ -15,6 +14,7 @@ export default function RegisterTagScreen() {
   const router = useRouter();
   const tasks = useTasks();
   const createTag = useCreateTag();
+  const resolveTask = useResolveTask();
 
   // A uid arrives when the user scanned a tag that already carries a token but
   // isn't registered. Reuse it rather than overwriting the chip.
@@ -22,7 +22,7 @@ export default function RegisterTagScreen() {
   const { uid: scannedUid, spot } = useLocalSearchParams<{ uid?: string; spot?: string }>();
 
   const [label, setLabel] = useState('');
-  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [taskName, setTaskName] = useState('');
   const [writing, setWriting] = useState(false);
 
   async function handleSave() {
@@ -40,10 +40,12 @@ export default function RegisterTagScreen() {
         await writeTagToken(token);
       }
 
+      // After the chip write, so a failed write doesn't leave a new task behind.
+      const taskId = await resolveTask(taskName);
       const tag = await createTag.mutateAsync({
         uid: token,
         label: trimmedLabel,
-        taskId: selectedTaskId,
+        taskId,
         spot: spot ?? null,
       });
       router.replace(`/tags/${tag.id}`);
@@ -65,14 +67,13 @@ export default function RegisterTagScreen() {
           onChangeText={setLabel}
           placeholder="e.g. Desk"
           placeholderTextColor="#9ca3af"
-          className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-base text-ink"
+          className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-[16px] text-ink"
         />
       </View>
 
       <View className="gap-2">
         <Text className="text-base font-semibold text-ink">Task</Text>
-        <TaskPicker tasks={tasks.data ?? []} selectedTaskId={selectedTaskId} onSelect={setSelectedTaskId} />
-        <NewTaskField onCreated={setSelectedTaskId} />
+        <TaskField value={taskName} onChangeText={setTaskName} tasks={tasks.data ?? []} />
       </View>
 
       <View className="gap-2">

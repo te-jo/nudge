@@ -162,6 +162,8 @@ Use NativeWind (`className`) for everything by default. A few React Native compo
 
 Everything else stays NativeWind — don't reach for `StyleSheet` out of habit.
 
+**Text inputs: size with `text-[16px]`, not `text-base`.** Tailwind's `text-*` sizes also set a line height, and on iOS a `TextInput` with a line height renders typed text too low, clipping descenders. The arbitrary-value class sets only the font size.
+
 ---
 
 ## TypeScript Rules

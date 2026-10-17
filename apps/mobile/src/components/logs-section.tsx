@@ -169,7 +169,7 @@ export function LogsSection() {
           placeholderTextColor="#9ca3af"
           autoFocus
           onSubmitEditing={saveNote}
-          className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-base text-ink"
+          className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-[16px] text-ink"
         />
         <View className="flex-row gap-3">
           <View className="flex-1">

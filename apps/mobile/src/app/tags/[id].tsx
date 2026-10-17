@@ -5,7 +5,7 @@ import { ActivityIndicator, Alert, ScrollView, Text, TextInput, View } from 'rea
 import { Button } from '@/components/button';
 import { EventRow } from '@/components/event-row';
 import { Screen } from '@/components/screen';
-import { TaskPicker } from '@/components/task-picker';
+import { TaskField, useResolveTask } from '@/components/task-field';
 import { useLogEvent, useTagEvents } from '@/hooks/use-events';
 import { useDeleteTag, useTag, useUpdateTag } from '@/hooks/use-tags';
 import { useTasks } from '@/hooks/use-tasks';
@@ -20,8 +20,13 @@ export default function TagDetailScreen() {
   const updateTag = useUpdateTag(id);
   const deleteTag = useDeleteTag(id);
   const logEvent = useLogEvent();
+  const resolveTask = useResolveTask();
 
   const [label, setLabel] = useState('');
+  // null until the user types, so the field shows the current task name even
+  // if tasks finish loading after the tag.
+  const [taskDraft, setTaskDraft] = useState<string | null>(null);
+  const [savingTask, setSavingTask] = useState(false);
   // Adjust local state during render (React's recommended pattern for
   // syncing from a prop/query) rather than in an effect, so switching to a
   // different tag resets the field without an extra render pass.
@@ -44,6 +49,9 @@ export default function TagDetailScreen() {
   const tag = tagQuery.data;
   const trimmedLabel = label.trim();
   const labelChanged = trimmedLabel !== '' && trimmedLabel !== tag.label;
+  const currentTaskName = tasksQuery.data?.find((task) => task.id === tag.taskId)?.name ?? '';
+  const taskText = taskDraft ?? currentTaskName;
+  const taskChanged = taskDraft !== null && taskDraft.trim() !== currentTaskName;
 
   function alertError(title: string, err: unknown) {
     Alert.alert(title, err instanceof Error ? err.message : 'Something went wrong.');
@@ -55,6 +63,19 @@ export default function TagDetailScreen() {
       router.back();
     } catch (err) {
       alertError("Couldn't delete tag", err);
+    }
+  }
+
+  async function saveTask() {
+    setSavingTask(true);
+    try {
+      const taskId = await resolveTask(taskText);
+      await updateTag.mutateAsync({ taskId });
+      setTaskDraft(null);
+    } catch (err) {
+      alertError("Couldn't update task", err);
+    } finally {
+      setSavingTask(false);
     }
   }
 
@@ -80,7 +101,7 @@ export default function TagDetailScreen() {
             <TextInput
               value={label}
               onChangeText={setLabel}
-              className="flex-1 rounded-xl border border-gray-200 px-4 py-3 text-base text-ink dark:border-gray-700 dark:text-white"
+              className="flex-1 rounded-xl border border-gray-200 px-4 py-3 text-[16px] text-ink dark:border-gray-700 dark:text-white"
             />
             {labelChanged ? (
               <Button
@@ -99,13 +120,15 @@ export default function TagDetailScreen() {
 
         <View className="gap-2">
           <Text className="text-base font-semibold text-ink dark:text-white">Task</Text>
-          <TaskPicker
-            tasks={tasksQuery.data ?? []}
-            selectedTaskId={tag.taskId}
-            onSelect={(taskId) =>
-              updateTag.mutate({ taskId }, { onError: (err) => alertError("Couldn't update task", err) })
-            }
-          />
+          <TaskField value={taskText} onChangeText={setTaskDraft} tasks={tasksQuery.data ?? []} />
+          {taskChanged ? (
+            <Button
+              title={savingTask ? 'Saving…' : 'Save task'}
+              variant="secondary"
+              onPress={() => void saveTask()}
+              disabled={savingTask}
+            />
+          ) : null}
         </View>
 
         <Button

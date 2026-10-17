@@ -6,8 +6,8 @@ const OnCreamContext = createContext(false);
 
 /**
  * True inside a window card. The card is cream in both colour schemes, so
- * shared components that also appear on plain screens (Button, TaskPicker,
- * NewTaskField) use it
+ * shared components that also appear on plain screens (Button, TaskField)
+ * use it
  * to skip their `dark:` styles.
  */
 export function useOnCream() {

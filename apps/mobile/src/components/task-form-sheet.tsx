@@ -136,7 +136,7 @@ export function TaskFormSheet({
           placeholder="e.g. Take vitamins"
           placeholderTextColor="#9ca3af"
           autoFocus={!editing}
-          className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-base text-ink"
+          className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-[16px] text-ink"
         />
       </View>
 
@@ -168,7 +168,7 @@ export function TaskFormSheet({
           onChangeText={setNewFolderName}
           placeholder="…or type a new folder name"
           placeholderTextColor="#9ca3af"
-          className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-base text-ink"
+          className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-[16px] text-ink"
         />
       </View>
 
