@@ -2,6 +2,7 @@ import type { Tag } from '@nudge/shared-types';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Pressable, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/button';
 import { WindowModal } from '@/components/window-modal';
@@ -9,6 +10,8 @@ import { ROOMS, ROOM_DESIGN_SIZE, type RoomSpot } from '@/constants/rooms';
 import { useSetTagSpot, useTags } from '@/hooks/use-tags';
 
 const DOT = 28;
+// Clears the floating tab bar (icon + its vertical padding) with a little gap.
+const HINT_ABOVE_TAB_BAR = 64;
 
 const SPOT_LABELS = new Map(
   ROOMS.flatMap((room) => room.spots.map((spot) => [spot.key, `${room.label} · ${spot.label}`])),
@@ -32,6 +35,7 @@ export function RoomSpots({
   height: number;
 }) {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const tags = useTags();
   const setTagSpot = useSetTagSpot();
   const [picking, setPicking] = useState<RoomSpot | null>(null);
@@ -41,6 +45,8 @@ export function RoomSpots({
   const offsetY = (height - ROOM_DESIGN_SIZE.height * scale) / 2;
 
   const tagBySpot = new Map((tags.data ?? []).flatMap((tag) => (tag.spot ? [[tag.spot, tag]] : [])));
+  // Only once tags have loaded, so it doesn't flash on startup or when offline.
+  const roomIsEmpty = tags.isSuccess && spots.every((spot) => !tagBySpot.has(spot.key));
 
   function confirmRemove(tag: Tag, spot: RoomSpot) {
     Alert.alert(`Remove "${tag.label}"?`, `It will no longer sit on the ${spot.label.toLowerCase()}.`, [
@@ -97,6 +103,17 @@ export function RoomSpots({
           </View>
         );
       })}
+
+      {roomIsEmpty ? (
+        <View
+          pointerEvents="none"
+          className="absolute inset-x-0 items-center px-6"
+          style={{ bottom: insets.bottom + HINT_ABOVE_TAB_BAR }}>
+          <Text className="rounded-full bg-cream/95 px-4 py-2 text-center text-sm font-medium text-ink">
+            Tap a yellow dot to place your first tag.
+          </Text>
+        </View>
+      ) : null}
 
       <SpotPicker
         spot={picking}

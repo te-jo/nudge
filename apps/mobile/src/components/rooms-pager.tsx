@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import PagerView from 'react-native-pager-view';
 
 import { RoomPage, RoomTabBar } from '@/components/room-tab-bar';
+import { ScanButton } from '@/components/scan-button';
 import { ROOMS } from '@/constants/rooms';
 
 /**
@@ -46,6 +47,8 @@ export function RoomsPager() {
           pager.current?.setPage(next);
         }}
       />
+
+      <ScanButton />
     </View>
   );
 }

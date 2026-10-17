@@ -1,15 +1,15 @@
-import Feather from '@expo/vector-icons/Feather';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { Image, type ImageSource } from 'expo-image';
 import { useState } from 'react';
-import { Pressable, Text, View, useWindowDimensions } from 'react-native';
+import { Pressable, View, useWindowDimensions } from 'react-native';
 import Animated, { useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Checkerboard } from '@/components/checkerboard';
 import { RoomSpots } from '@/components/room-spots';
 import { ROOMS, type RoomSpot } from '@/constants/rooms';
 
-const ACTIVE = '#2563eb';
+// The orange from the room illustrations.
+const ACTIVE = '#FF7234';
 const INACTIVE = '#9ca3af';
 
 function TabIcon({
@@ -36,7 +36,7 @@ function TabIcon({
       hitSlop={8}
       className="flex-1 items-center justify-center py-3">
       <Animated.View style={style}>
-        <Feather name={icon} size={22} color={active ? ACTIVE : INACTIVE} />
+        <Ionicons name={icon} size={22} color={active ? ACTIVE : INACTIVE} />
       </Animated.View>
     </Pressable>
   );
@@ -68,7 +68,7 @@ export function RoomTabBar({
   );
 }
 
-/** A room: its background, its tag spots, and (for now) a placeholder title. */
+/** A room: its background and its tag spots. */
 export function RoomPage({
   label,
   background,
@@ -78,22 +78,18 @@ export function RoomPage({
   background: ImageSource;
   spots: RoomSpot[];
 }) {
-  const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
 
   return (
-    <View className="flex-1 items-center gap-2 p-6" style={{ paddingTop: insets.top + 24 }}>
-      {/* Both sized to the window, not the page, so they're always full screen height. */}
-      <Checkerboard width={width} height={height} />
+    // No visible title: the background says which room it is. The label stays
+    // for screen readers.
+    <View className="flex-1 bg-white" accessibilityLabel={label}>
+      {/* Sized to the window, not the page, so it's always full screen height. */}
       <Image
         source={background}
         contentFit="cover"
         style={{ position: 'absolute', top: 0, left: 0, width, height }}
       />
-      <Text className="text-2xl font-bold text-ink dark:text-white">{label}</Text>
-      <Text className="text-center text-gray-700 dark:text-gray-200">
-        Tap a yellow dot to place a tag. Long-press a tag to remove it.
-      </Text>
       <RoomSpots spots={spots} width={width} height={height} />
     </View>
   );

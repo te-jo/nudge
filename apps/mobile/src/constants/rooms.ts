@@ -1,8 +1,9 @@
-import type Feather from '@expo/vector-icons/Feather';
+import type Ionicons from '@expo/vector-icons/Ionicons';
 import type { ImageSource } from 'expo-image';
 import type { ComponentProps } from 'react';
 
-type FeatherName = ComponentProps<typeof Feather>['name'];
+// Solid Ionicons glyphs (no `-outline` suffix) for the tab bar.
+type IconName = ComponentProps<typeof Ionicons>['name'];
 
 /**
  * A place a tag can sit in a room. `x`/`y` are in the backgrounds' own
@@ -20,7 +21,7 @@ export const ROOM_DESIGN_SIZE = { width: 402, height: 874 };
 export const ROOMS: {
   key: string;
   label: string;
-  icon: FeatherName;
+  icon: IconName;
   background: ImageSource;
   spots: RoomSpot[];
 }[] = [
@@ -40,7 +41,7 @@ export const ROOMS: {
   {
     key: 'corner',
     label: 'Corner',
-    icon: 'book-open',
+    icon: 'book',
     background: require('@/assets/images/rooms/corner.svg'),
     spots: [
       { key: 'corner.record', label: 'Record', x: 123, y: 460 },
@@ -53,7 +54,7 @@ export const ROOMS: {
   {
     key: 'kitchen',
     label: 'Kitchen',
-    icon: 'coffee',
+    icon: 'cafe',
     background: require('@/assets/images/rooms/kitchen.svg'),
     spots: [
       { key: 'kitchen.fridge', label: 'Fridge', x: 95, y: 400 },
@@ -78,7 +79,7 @@ export const ROOMS: {
   {
     key: 'bathroom',
     label: 'Bathroom',
-    icon: 'droplet',
+    icon: 'water',
     background: require('@/assets/images/rooms/bathroom.svg'),
     spots: [
       { key: 'bathroom.box', label: 'Box', x: 160, y: 490 },

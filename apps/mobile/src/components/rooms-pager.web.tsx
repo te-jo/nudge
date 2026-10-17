@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { ScrollView, View, useWindowDimensions } from 'react-native';
 
 import { RoomPage, RoomTabBar } from '@/components/room-tab-bar';
+import { ScanButton } from '@/components/scan-button';
 import { ROOMS } from '@/constants/rooms';
 
 /**
@@ -46,6 +47,8 @@ export function RoomsPager() {
           scroller.current?.scrollTo({ x: next * width, animated: true });
         }}
       />
+
+      <ScanButton />
     </View>
   );
 }
